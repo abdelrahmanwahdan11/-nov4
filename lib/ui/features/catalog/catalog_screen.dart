@@ -354,7 +354,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return AppScaffold(
-      currentIndex: 1,
+      initialIndex: 0,
+      showNavigation: false,
       body: SafeArea(
         child: Column(
           children: [

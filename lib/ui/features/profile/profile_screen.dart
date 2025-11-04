@@ -243,7 +243,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return AppScaffold(
-      currentIndex: 3,
+      initialIndex: 2,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),

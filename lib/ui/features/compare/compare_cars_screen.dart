@@ -298,7 +298,8 @@ class _CompareCarsScreenState extends State<CompareCarsScreen> {
     final loc = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return AppScaffold(
-      currentIndex: 1,
+      initialIndex: 0,
+      showNavigation: false,
       body: SafeArea(
         child: Column(
           children: [

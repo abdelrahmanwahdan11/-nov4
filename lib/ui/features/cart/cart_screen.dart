@@ -91,7 +91,8 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return AppScaffold(
-      currentIndex: 2,
+      initialIndex: 0,
+      showNavigation: false,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),

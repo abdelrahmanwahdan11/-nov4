@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
 
-class AuthController extends ChangeNotifier {
-  bool _isAuthenticated = false;
+class AuthState {
+  const AuthState({required this.isAuthenticated});
 
-  bool get isAuthenticated => _isAuthenticated;
+  final bool isAuthenticated;
+
+  AuthState copyWith({bool? isAuthenticated}) {
+    return AuthState(isAuthenticated: isAuthenticated ?? this.isAuthenticated);
+  }
+}
+
+class AuthController extends ValueNotifier<AuthState> {
+  AuthController() : super(const AuthState(isAuthenticated: false));
+
+  bool get isAuthenticated => value.isAuthenticated;
 
   Future<void> login(String email, String password) async {
     await Future<void>.delayed(const Duration(milliseconds: 500));
-    _isAuthenticated = true;
-    notifyListeners();
+    value = value.copyWith(isAuthenticated: true);
   }
 
   Future<void> register(String email, String password) async {
     await Future<void>.delayed(const Duration(milliseconds: 500));
-    _isAuthenticated = true;
-    notifyListeners();
+    value = value.copyWith(isAuthenticated: true);
   }
 
   Future<void> logout() async {
-    _isAuthenticated = false;
-    notifyListeners();
+    value = value.copyWith(isAuthenticated: false);
   }
 }

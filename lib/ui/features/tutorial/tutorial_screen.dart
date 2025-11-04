@@ -8,6 +8,7 @@ class TutorialScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+      showNavigation: false,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),

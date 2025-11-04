@@ -3,11 +3,10 @@ import 'package:greenly/core/state/simple_provider.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/localization/app_localizations.dart';
-import '../../../core/localization/locale_controller.dart';
-import '../../../core/theme/theme_controller.dart';
+import '../../../core/state/app_store.dart';
+import '../../../core/storage/app_preferences.dart';
 import '../../controllers/tutorial_controller.dart';
 import '../../widgets/app_scaffold.dart';
-import '../../../core/storage/app_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -42,12 +41,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeController = context.watch<ThemeController>();
-    final localeController = context.watch<LocaleController>();
+    final store = AppStoreScope.of(context);
     final tutorialController = context.watch<TutorialController>();
     final loc = AppLocalizations.of(context);
     return AppScaffold(
-      currentIndex: 3,
+      initialIndex: 2,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -58,7 +56,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ListTile(
                 title: Text(loc.translate('settingsTheme')),
                 trailing: DropdownButton<ThemeMode>(
-                  value: themeController.themeMode,
+                  value: store.themeMode,
                   items: [
                     DropdownMenuItem(value: ThemeMode.system, child: Text(loc.translate('themeSystem'))),
                     DropdownMenuItem(value: ThemeMode.light, child: Text(loc.translate('themeLight'))),
@@ -66,7 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                   onChanged: (value) {
                     if (value != null) {
-                      themeController.setThemeMode(value);
+                      store.setThemeMode(value);
                     }
                   },
                 ),
@@ -80,11 +78,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: AppConstants.primaryColorPalette
                     .map(
                       (color) => GestureDetector(
-                        onTap: () => themeController.setSeedColor(color),
+                        onTap: () => store.setSeedColor(color),
                         child: CircleAvatar(
                           backgroundColor: color,
                           radius: 20,
-                          child: themeController.seedColor == color
+                          child: store.seedColor == color
                               ? const Icon(Icons.check, color: Colors.white)
                               : null,
                         ),
@@ -96,13 +94,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ListTile(
                 title: Text(loc.translate('settingsLanguage')),
                 trailing: DropdownButton<Locale>(
-                  value: localeController.locale,
+                  value: store.locale,
                   items: AppConstants.supportedLocales
                       .map((locale) => DropdownMenuItem(value: locale, child: Text(locale.languageCode.toUpperCase())))
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {
-                      localeController.setLocale(value);
+                      store.setLocale(value);
                     }
                   },
                 ),
@@ -123,8 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
-                  await themeController.resetDefaults();
-                  await localeController.setLocale(AppConstants.defaultLocale);
+                  await store.resetDefaults();
                   await _toggleSlow(false);
                 },
                 child: Text(loc.translate('restoreDefaults')),

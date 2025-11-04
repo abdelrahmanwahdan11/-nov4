@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return AppScaffold(
-      currentIndex: 0,
+      initialIndex: 0,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

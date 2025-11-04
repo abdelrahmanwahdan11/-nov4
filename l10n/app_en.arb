@@ -2,6 +2,7 @@
   "@@locale": "en",
   "appTitle": "Greenly",
   "menuHome": "Home",
+  "menuFavorites": "Favorites",
   "menuCatalog": "Catalog",
   "menuCart": "Cart",
   "menuProfile": "Profile",

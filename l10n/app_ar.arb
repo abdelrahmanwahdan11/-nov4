@@ -2,6 +2,7 @@
   "@@locale": "ar",
   "appTitle": "جرينلي",
   "menuHome": "الرئيسية",
+  "menuFavorites": "المفضلة",
   "menuCatalog": "الكتالوج",
   "menuCart": "السلة",
   "menuProfile": "الملف الشخصي",

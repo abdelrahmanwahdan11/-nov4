@@ -7,6 +7,7 @@ import '../../ui/features/cart/cart_screen.dart';
 import '../../ui/features/catalog/catalog_screen.dart';
 import '../../ui/features/compare/compare_cars_screen.dart';
 import '../../ui/features/details/item_details_screen.dart';
+import '../../ui/features/favorites/favorites_screen.dart';
 import '../../ui/features/home/home_screen.dart';
 import '../../ui/features/onboarding/onboarding_story_screen.dart';
 import '../../ui/features/profile/profile_screen.dart';
@@ -21,6 +22,7 @@ class AppRoutes {
   static const splash = '/';
   static const onboarding = '/onboarding';
   static const home = '/home';
+  static const favorites = '/favorites';
   static const catalog = '/catalog';
   static const cart = '/cart';
   static const profile = '/profile';
@@ -35,36 +37,77 @@ class AppRoutes {
 }
 
 Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-  switch (settings.name) {
-    case AppRoutes.splash:
-      return MaterialPageRoute(builder: (_) => const SplashScreen());
-    case AppRoutes.onboarding:
-      return MaterialPageRoute(builder: (_) => const OnboardingStoryScreen());
-    case AppRoutes.home:
-      return MaterialPageRoute(builder: (_) => const HomeScreen());
-    case AppRoutes.catalog:
-      return MaterialPageRoute(builder: (_) => const CatalogScreen());
-    case AppRoutes.cart:
-      return MaterialPageRoute(builder: (_) => const CartScreen());
-    case AppRoutes.profile:
-      return MaterialPageRoute(builder: (_) => const ProfileScreen());
-    case AppRoutes.settings:
-      return MaterialPageRoute(builder: (_) => const SettingsScreen());
-    case AppRoutes.login:
-      return MaterialPageRoute(builder: (_) => const LoginScreen());
-    case AppRoutes.register:
-      return MaterialPageRoute(builder: (_) => const RegisterScreen());
-    case AppRoutes.forgotPassword:
-      return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
-    case AppRoutes.itemDetails:
-      return MaterialPageRoute(builder: (_) => ItemDetailsScreen(itemId: settings.arguments as String));
-    case AppRoutes.compareCars:
-      return MaterialPageRoute(builder: (_) => const CompareCarsScreen());
-    case AppRoutes.carViewer:
-      return MaterialPageRoute(builder: (_) => Car3DViewerScreen(carId: settings.arguments as String?));
-    case AppRoutes.tutorial:
-      return MaterialPageRoute(builder: (_) => const TutorialScreen());
-    default:
-      return null;
+  final builder = _routeBuilders[settings.name];
+  if (builder == null) {
+    return null;
   }
+
+  final transition = _routeTransitions[settings.name] ?? _TransitionStyle.sharedAxis;
+
+  return PageRouteBuilder<dynamic>(
+    settings: settings,
+    transitionDuration: const Duration(milliseconds: 320),
+    reverseTransitionDuration: const Duration(milliseconds: 240),
+    pageBuilder: (context, animation, secondaryAnimation) => builder(context, settings),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curvedAnimation = CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic);
+      switch (transition) {
+        case _TransitionStyle.fade:
+          return FadeTransition(opacity: curvedAnimation, child: child);
+        case _TransitionStyle.slideUp:
+          final offset = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(curvedAnimation);
+          return FadeTransition(
+            opacity: curvedAnimation,
+            child: SlideTransition(position: offset, child: child),
+          );
+        case _TransitionStyle.sharedAxis:
+        default:
+          final scale = Tween<double>(begin: 0.92, end: 1).animate(curvedAnimation);
+          return FadeTransition(
+            opacity: curvedAnimation,
+            child: ScaleTransition(scale: scale, child: child),
+          );
+      }
+    },
+  );
 }
+
+enum _TransitionStyle { fade, sharedAxis, slideUp }
+
+typedef _RouteBuilder = Widget Function(BuildContext, RouteSettings);
+
+final Map<String, _RouteBuilder> _routeBuilders = {
+  AppRoutes.splash: (_, __) => const SplashScreen(),
+  AppRoutes.onboarding: (_, __) => const OnboardingStoryScreen(),
+  AppRoutes.home: (_, __) => const HomeScreen(),
+  AppRoutes.favorites: (_, __) => const FavoritesScreen(),
+  AppRoutes.catalog: (_, __) => const CatalogScreen(),
+  AppRoutes.cart: (_, __) => const CartScreen(),
+  AppRoutes.profile: (_, __) => const ProfileScreen(),
+  AppRoutes.settings: (_, __) => const SettingsScreen(),
+  AppRoutes.login: (_, __) => const LoginScreen(),
+  AppRoutes.register: (_, __) => const RegisterScreen(),
+  AppRoutes.forgotPassword: (_, __) => const ForgotPasswordScreen(),
+  AppRoutes.itemDetails: (_, settings) =>
+      ItemDetailsScreen(itemId: settings.arguments as String),
+  AppRoutes.compareCars: (_, __) => const CompareCarsScreen(),
+  AppRoutes.carViewer: (_, settings) =>
+      Car3DViewerScreen(carId: settings.arguments as String?),
+  AppRoutes.tutorial: (_, __) => const TutorialScreen(),
+};
+
+final Map<String, _TransitionStyle> _routeTransitions = {
+  AppRoutes.splash: _TransitionStyle.fade,
+  AppRoutes.onboarding: _TransitionStyle.sharedAxis,
+  AppRoutes.home: _TransitionStyle.sharedAxis,
+  AppRoutes.favorites: _TransitionStyle.sharedAxis,
+  AppRoutes.profile: _TransitionStyle.sharedAxis,
+  AppRoutes.settings: _TransitionStyle.slideUp,
+  AppRoutes.login: _TransitionStyle.slideUp,
+  AppRoutes.register: _TransitionStyle.slideUp,
+  AppRoutes.forgotPassword: _TransitionStyle.slideUp,
+  AppRoutes.itemDetails: _TransitionStyle.sharedAxis,
+  AppRoutes.compareCars: _TransitionStyle.sharedAxis,
+  AppRoutes.carViewer: _TransitionStyle.fade,
+  AppRoutes.tutorial: _TransitionStyle.fade,
+};
