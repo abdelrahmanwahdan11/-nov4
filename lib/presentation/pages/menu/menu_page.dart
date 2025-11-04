@@ -9,9 +9,12 @@ import '../../controllers/app_controller.dart';
 import '../../controllers/catalog_controller.dart';
 import '../../controllers/content_status.dart';
 import '../../controllers/cart_controller.dart';
+import '../../controllers/favorites_controller.dart';
+import '../../controllers/recently_viewed_controller.dart';
 import '../../controllers/tutorial_controller.dart';
 import '../../widgets/content_state_view.dart';
 import '../../widgets/food_card.dart';
+import '../../widgets/quick_action_card.dart';
 import '../catalog/catalog_page.dart';
 import '../item/item_details_page.dart';
 import '../compare/compare_cars_page.dart';
@@ -73,6 +76,8 @@ class _MenuPageState extends State<MenuPage> {
   CatalogController? _controller;
   final ValueNotifier<String?> _selectedTag = ValueNotifier<String?>(null);
   CartController? _cartController;
+  FavoritesController? _favoritesController;
+  RecentlyViewedController? _recentlyViewedController;
 
   CatalogController get _catalogController => _controller!;
 
@@ -87,6 +92,8 @@ class _MenuPageState extends State<MenuPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _cartController = CartScope.of(context);
+    _favoritesController = FavoritesScope.maybeOf(context);
+    _recentlyViewedController = RecentlyViewedScope.maybeOf(context);
     _controller ??= CatalogController(
       dataSource: FoodLocalDataSource(),
       connectionOverride: AppScope.of(context).connectionOverride,
@@ -203,6 +210,54 @@ class _MenuPageState extends State<MenuPage> {
                 }),
               ),
             ),
+            if (_favoritesController != null)
+              SliverToBoxAdapter(
+                child: ValueListenableBuilder<List<FoodItem>>(
+                  valueListenable: _favoritesController!.favoriteItems,
+                  builder: (context, favorites, _) {
+                    if (favorites.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: padding.add(const EdgeInsets.only(top: 8, bottom: 4)),
+                      child: _HorizontalSection(
+                        title: context.tr('section_favorites'),
+                        items: favorites,
+                        onOpen: _openDetails,
+                        onAdd: _addToCart,
+                        onToggleFavorite: (item) {
+                          _favoritesController!.toggleFavorite(item);
+                        },
+                        favoritesController: _favoritesController!,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            if (_recentlyViewedController != null)
+              SliverToBoxAdapter(
+                child: ValueListenableBuilder<List<FoodItem>>(
+                  valueListenable: _recentlyViewedController!.items,
+                  builder: (context, recent, _) {
+                    if (recent.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: padding.add(const EdgeInsets.only(top: 4, bottom: 4)),
+                      child: _HorizontalSection(
+                        title: context.tr('section_recently_viewed'),
+                        items: recent,
+                        onOpen: _openDetails,
+                        onAdd: _addToCart,
+                        onToggleFavorite: (item) {
+                          _favoritesController?.toggleFavorite(item);
+                        },
+                        favoritesController: _favoritesController,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ValueListenableBuilder<ContentStatus>(
               valueListenable: catalog.status,
               builder: (context, state, _) {
@@ -299,10 +354,9 @@ class _MenuPageState extends State<MenuPage> {
                                   (context, index) {
                                     final item = filtered[index];
                                     final tutorialTarget = index == 0 ? TutorialTarget.addToCart : null;
-                                    return FoodCard(
-                                      item: item,
-                                      onTap: () => _openDetails(item),
-                                      onAdd: () => _addToCart(item),
+                                    return _buildCardWithActions(
+                                      context,
+                                      item,
                                       tutorialTarget: tutorialTarget,
                                     );
                                   },
@@ -363,6 +417,124 @@ class _MenuPageState extends State<MenuPage> {
         ),
       );
       },
+    );
+  }
+
+  Widget _buildCardWithActions(
+    BuildContext context,
+    FoodItem item, {
+    TutorialTarget? tutorialTarget,
+  }) {
+    final favorites = _favoritesController;
+    if (favorites == null) {
+      return FoodCard(
+        item: item,
+        onTap: () => _openDetails(item),
+        onAdd: () {
+          _addToCart(item);
+        },
+        tutorialTarget: tutorialTarget,
+      );
+    }
+    return ValueListenableBuilder<List<String>>(
+      valueListenable: favorites.favoriteIds,
+      builder: (context, ids, _) {
+        final isFavorite = ids.contains(item.id);
+        final favoriteLabel = context.tr(isFavorite ? 'action_unfavorite' : 'action_favorite');
+        final addLabel = context.tr('quick_add_to_cart');
+        final card = FoodCard(
+          item: item,
+          onTap: () => _openDetails(item),
+          onAdd: () => _addToCart(item),
+          tutorialTarget: tutorialTarget,
+          onToggleFavorite: () {
+            favorites.toggleFavorite(item);
+          },
+          isFavorite: isFavorite,
+          favoriteTooltip: favoriteLabel,
+        );
+        return QuickActionCard(
+          id: item.id,
+          child: card,
+          onFavorite: () {
+            favorites.toggleFavorite(item);
+          },
+          onAddToCart: () {
+            _addToCart(item);
+          },
+          favoriteLabel: favoriteLabel,
+          addLabel: addLabel,
+          isFavorite: isFavorite,
+        );
+      },
+    );
+  }
+}
+
+class _HorizontalSection extends StatelessWidget {
+  const _HorizontalSection({
+    required this.title,
+    required this.items,
+    required this.onOpen,
+    required this.onAdd,
+    required this.onToggleFavorite,
+    required this.favoritesController,
+  });
+
+  final String title;
+  final List<FoodItem> items;
+  final void Function(FoodItem) onOpen;
+  final Future<void> Function(FoodItem) onAdd;
+  final void Function(FoodItem)? onToggleFavorite;
+  final FavoritesController? favoritesController;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+        ),
+        SizedBox(
+          height: 280,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            scrollDirection: Axis.horizontal,
+            itemCount: items.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final item = items[index];
+              final isFavorite = favoritesController?.isFavorite(item.id) ?? false;
+              return SizedBox(
+                width: 200,
+                  child: FoodCard(
+                    item: item,
+                    onTap: () => onOpen(item),
+                  onAdd: () {
+                    onAdd(item);
+                  },
+                  sizeVariant: FoodCardSizeVariant.compact,
+                  onToggleFavorite: onToggleFavorite != null
+                      ? () {
+                          onToggleFavorite!(item);
+                        }
+                      : null,
+                  isFavorite: isFavorite,
+                  favoriteTooltip: context.tr(
+                    isFavorite ? 'action_unfavorite' : 'action_favorite',
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

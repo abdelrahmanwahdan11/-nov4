@@ -4,10 +4,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/locale/localization_extension.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../domain/models/food_item.dart';
+import '../../controllers/cart_controller.dart';
 import '../../controllers/catalog_controller.dart';
 import '../../controllers/content_status.dart';
+import '../../controllers/favorites_controller.dart';
 import '../../widgets/content_state_view.dart';
 import '../../widgets/food_card.dart';
+import '../../widgets/quick_action_card.dart';
 import '../item/item_details_page.dart';
 
 class CatalogPage extends StatefulWidget {
@@ -23,6 +26,8 @@ class CatalogPage extends StatefulWidget {
 
 class _CatalogPageState extends State<CatalogPage> {
   late final ScrollController _scrollController;
+  CartController? _cartController;
+  FavoritesController? _favoritesController;
 
   CatalogController get _controller => widget.controller;
 
@@ -32,6 +37,13 @@ class _CatalogPageState extends State<CatalogPage> {
     _scrollController = ScrollController();
     _scrollController.addListener(_handleScroll);
     _controller.loadInitial();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _cartController = CartScope.of(context);
+    _favoritesController = FavoritesScope.maybeOf(context);
   }
 
   @override
@@ -50,6 +62,74 @@ class _CatalogPageState extends State<CatalogPage> {
         _scrollController.position.maxScrollExtent - 200) {
       _controller.loadMore();
     }
+  }
+
+  Future<void> _addToCart(FoodItem item) async {
+    final controller = _cartController;
+    if (controller != null) {
+      await controller.addItem(item);
+    }
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${context.tr('added_to_cart')} ${item.name}'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Widget _buildCard(FoodItem item) {
+    final favorites = _favoritesController;
+    if (favorites == null) {
+      return FoodCard(
+        item: item,
+        onTap: () => Navigator.of(context).pushNamed(
+          ItemDetailsPage.routeName,
+          arguments: item,
+        ),
+        onAdd: () {
+          _addToCart(item);
+        },
+      );
+    }
+    return ValueListenableBuilder<List<String>>(
+      valueListenable: favorites.favoriteIds,
+      builder: (context, ids, _) {
+        final isFavorite = ids.contains(item.id);
+        final favoriteLabel = context.tr(isFavorite ? 'action_unfavorite' : 'action_favorite');
+        final addLabel = context.tr('quick_add_to_cart');
+        final card = FoodCard(
+          item: item,
+          onTap: () => Navigator.of(context).pushNamed(
+            ItemDetailsPage.routeName,
+            arguments: item,
+          ),
+          onAdd: () {
+            _addToCart(item);
+          },
+          onToggleFavorite: () {
+            favorites.toggleFavorite(item);
+          },
+          isFavorite: isFavorite,
+          favoriteTooltip: favoriteLabel,
+        );
+        return QuickActionCard(
+          id: item.id,
+          child: card,
+          onFavorite: () {
+            favorites.toggleFavorite(item);
+          },
+          onAddToCart: () {
+            _addToCart(item);
+          },
+          favoriteLabel: favoriteLabel,
+          addLabel: addLabel,
+          isFavorite: isFavorite,
+        );
+      },
+    );
   }
 
   Future<void> _onRefresh() async {
@@ -187,20 +267,7 @@ class _CatalogPageState extends State<CatalogPage> {
                                       delegate: SliverChildBuilderDelegate(
                                         (context, index) {
                                           final item = items[index];
-                                          return FoodCard(
-                                            item: item,
-                                            onTap: () => Navigator.of(context)
-                                                .pushNamed(ItemDetailsPage.routeName, arguments: item),
-                                            onAdd: () {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    '${context.tr('added_to_cart')} ${item.name}',
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          );
+                                          return _buildCard(item);
                                         },
                                         childCount: items.length,
                                       ),
@@ -214,20 +281,7 @@ class _CatalogPageState extends State<CatalogPage> {
                                     final item = items[index];
                                     return Padding(
                                       padding: const EdgeInsets.only(bottom: 16),
-                                      child: FoodCard(
-                                        item: item,
-                                        onTap: () => Navigator.of(context)
-                                            .pushNamed(ItemDetailsPage.routeName, arguments: item),
-                                        onAdd: () {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                '${context.tr('added_to_cart')} ${item.name}',
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
+                                      child: _buildCard(item),
                                     );
                                   },
                                   childCount: items.length,

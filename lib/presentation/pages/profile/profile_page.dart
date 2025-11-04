@@ -4,6 +4,13 @@ import '../../../core/locale/localization_extension.dart';
 import '../cart/cart_page.dart';
 import '../catalog/catalog_page.dart';
 import '../settings/settings_page.dart';
+import '../item/item_details_page.dart';
+import '../../controllers/cart_controller.dart';
+import '../../controllers/favorites_controller.dart';
+import '../../controllers/recently_viewed_controller.dart';
+import '../../widgets/food_card.dart';
+import '../../widgets/quick_action_card.dart';
+import '../../../domain/models/food_item.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -41,13 +48,7 @@ class ProfilePage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            _ProfilePlaceholder(
-              icon: Icons.favorite_outline,
-              title: context.tr('profile_guest_title'),
-              description: context.tr('profile_favorites_placeholder'),
-              primaryActionLabel: context.tr('profile_action_browse_menu'),
-              onPrimaryTap: () => Navigator.of(context).pushNamed(CatalogPage.routeName),
-            ),
+            const _FavoritesTab(),
             _ProfilePlaceholder(
               icon: Icons.location_on_outlined,
               title: context.tr('profile_addresses_title'),
@@ -70,6 +71,143 @@ class ProfilePage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FavoritesTab extends StatelessWidget {
+  const _FavoritesTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final favorites = FavoritesScope.maybeOf(context);
+    final recent = RecentlyViewedScope.maybeOf(context);
+    final cart = CartScope.of(context);
+    if (favorites == null) {
+      return _ProfilePlaceholder(
+        icon: Icons.favorite_outline,
+        title: context.tr('profile_guest_title'),
+        description: context.tr('profile_favorites_placeholder'),
+        primaryActionLabel: context.tr('profile_action_browse_menu'),
+        onPrimaryTap: () => Navigator.of(context).pushNamed(CatalogPage.routeName),
+      );
+    }
+    return ValueListenableBuilder<List<FoodItem>>(
+      valueListenable: favorites.favoriteItems,
+      builder: (context, items, _) {
+        if (items.isEmpty) {
+          return _ProfilePlaceholder(
+            icon: Icons.favorite_outline,
+            title: context.tr('profile_favorites_empty_title'),
+            description: context.tr('profile_favorites_placeholder'),
+            primaryActionLabel: context.tr('profile_action_browse_menu'),
+            onPrimaryTap: () => Navigator.of(context).pushNamed(CatalogPage.routeName),
+            secondaryHint: context.tr('profile_favorites_empty_hint'),
+          );
+        }
+        return ListView(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+          children: [
+            ...items.map((item) {
+              final favoriteLabel = context.tr('action_unfavorite');
+              final addLabel = context.tr('quick_add_to_cart');
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: QuickActionCard(
+                  id: 'profile_${item.id}',
+                  favoriteLabel: favoriteLabel,
+                  addLabel: addLabel,
+                  isFavorite: true,
+                  onFavorite: () {
+                    favorites.toggleFavorite(item);
+                  },
+                  onAddToCart: () {
+                    _addToCart(context, cart, item);
+                  },
+                  child: FoodCard(
+                    item: item,
+                    onTap: () => Navigator.of(context)
+                        .pushNamed(ItemDetailsPage.routeName, arguments: item),
+                    onAdd: () {
+                      _addToCart(context, cart, item);
+                    },
+                    favoriteTooltip: favoriteLabel,
+                    isFavorite: true,
+                  ),
+                ),
+              );
+            }),
+            if (recent != null)
+              ValueListenableBuilder<List<FoodItem>>(
+                valueListenable: recent.items,
+                builder: (context, recents, __) {
+                  if (recents.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          context.tr('section_recently_viewed'),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 220,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: recents.length,
+                          padding: const EdgeInsets.only(bottom: 8),
+                          separatorBuilder: (_, __) => const SizedBox(width: 16),
+                          itemBuilder: (context, index) {
+                            final item = recents[index];
+                            final isFavorite = favorites.isFavorite(item.id);
+                            return SizedBox(
+                              width: 180,
+                              child: FoodCard(
+                                item: item,
+                                onTap: () => Navigator.of(context).pushNamed(
+                                  ItemDetailsPage.routeName,
+                                  arguments: item,
+                                ),
+                                onAdd: () {
+                                  _addToCart(context, cart, item);
+                                },
+                                sizeVariant: FoodCardSizeVariant.compact,
+                                onToggleFavorite: () {
+                                  favorites.toggleFavorite(item);
+                                },
+                                isFavorite: isFavorite,
+                                favoriteTooltip: context.tr(
+                                  isFavorite ? 'action_unfavorite' : 'action_favorite',
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _addToCart(BuildContext context, CartController cart, FoodItem item) async {
+    await cart.addItem(item);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${context.tr('added_to_cart')} ${item.name}'),
+        duration: const Duration(seconds: 2),
       ),
     );
   }

@@ -8,9 +8,13 @@ import 'presentation/controllers/cart_controller.dart';
 import 'presentation/controllers/catalog_controller.dart';
 import 'presentation/controllers/compare_controller.dart';
 import 'presentation/controllers/tutorial_controller.dart';
+import 'presentation/controllers/favorites_controller.dart';
+import 'presentation/controllers/recently_viewed_controller.dart';
 import 'data/local/cart_local_data_source.dart';
 import 'data/local/food_local_data_source.dart';
 import 'data/local/car_local_data_source.dart';
+import 'data/local/favorites_local_data_source.dart';
+import 'data/local/recently_viewed_local_data_source.dart';
 import 'domain/models/food_item.dart';
 import 'presentation/pages/auth/forgot_password_page.dart';
 import 'presentation/pages/auth/login_page.dart';
@@ -26,13 +30,24 @@ import 'presentation/widgets/tutorial_overlay.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final foodDataSource = FoodLocalDataSource();
   final appController = AppController();
   final authController = AuthController(appController: appController);
   final cartController = CartController(
-    catalogDataSource: FoodLocalDataSource(),
+    catalogDataSource: foodDataSource,
     localDataSource: CartLocalDataSource(),
   );
   await cartController.initialize();
+  final favoritesController = FavoritesController(
+    dataSource: foodDataSource,
+    localDataSource: FavoritesLocalDataSource(),
+  );
+  await favoritesController.initialize();
+  final recentlyViewedController = RecentlyViewedController(
+    dataSource: foodDataSource,
+    localDataSource: RecentlyViewedLocalDataSource(),
+  );
+  await recentlyViewedController.initialize();
   final compareController = CompareController(
     dataSource: CarLocalDataSource(),
   );
@@ -45,6 +60,9 @@ Future<void> main() async {
       cartController: cartController,
       compareController: compareController,
       tutorialController: tutorialController,
+      favoritesController: favoritesController,
+      recentlyViewedController: recentlyViewedController,
+      foodDataSource: foodDataSource,
     ),
   );
 }
@@ -57,6 +75,9 @@ class GreenBiteApp extends StatelessWidget {
     required this.cartController,
     required this.compareController,
     required this.tutorialController,
+    required this.favoritesController,
+    required this.recentlyViewedController,
+    required this.foodDataSource,
   });
 
   final AppController appController;
@@ -64,6 +85,9 @@ class GreenBiteApp extends StatelessWidget {
   final CartController cartController;
   final CompareController compareController;
   final TutorialController tutorialController;
+  final FavoritesController favoritesController;
+  final RecentlyViewedController recentlyViewedController;
+  final FoodLocalDataSource foodDataSource;
 
   Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -110,7 +134,7 @@ class GreenBiteApp extends StatelessWidget {
         return MaterialPageRoute<void>(
           builder: (_) => CatalogPage(
             controller: CatalogController(
-              dataSource: FoodLocalDataSource(),
+              dataSource: foodDataSource,
               connectionOverride: appController.connectionOverride,
             ),
           ),
@@ -153,11 +177,15 @@ class GreenBiteApp extends StatelessWidget {
             controller: authController,
             child: CartScope(
               controller: cartController,
-              child: CompareScope(
-                controller: compareController,
-                child: TutorialScope(
-                  controller: tutorialController,
-                  child: MaterialApp(
+              child: FavoritesScope(
+                controller: favoritesController,
+                child: RecentlyViewedScope(
+                  controller: recentlyViewedController,
+                  child: CompareScope(
+                    controller: compareController,
+                    child: TutorialScope(
+                      controller: tutorialController,
+                      child: MaterialApp(
                     title: 'GreenBite',
                     debugShowCheckedModeBanner: false,
                     themeMode: appController.themeMode,
@@ -203,6 +231,8 @@ class GreenBiteApp extends StatelessWidget {
                     },
                     initialRoute: SplashPage.routeName,
                     onGenerateRoute: _onGenerateRoute,
+                      ),
+                    ),
                   ),
                 ),
               ),

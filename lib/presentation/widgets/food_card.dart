@@ -14,6 +14,9 @@ class FoodCard extends StatelessWidget {
     required this.onAdd,
     this.sizeVariant = FoodCardSizeVariant.medium,
     this.tutorialTarget,
+    this.onToggleFavorite,
+    this.isFavorite = false,
+    this.favoriteTooltip,
   });
 
   final FoodItem item;
@@ -21,6 +24,9 @@ class FoodCard extends StatelessWidget {
   final VoidCallback onAdd;
   final FoodCardSizeVariant sizeVariant;
   final TutorialTarget? tutorialTarget;
+  final VoidCallback? onToggleFavorite;
+  final bool isFavorite;
+  final String? favoriteTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +108,23 @@ class FoodCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  if (onToggleFavorite != null)
+                    PositionedDirectional(
+                      top: 12,
+                      end: 12,
+                      child: Material(
+                        color: colorScheme.surface.withOpacity(0.85),
+                        shape: const CircleBorder(),
+                        child: IconButton(
+                          onPressed: onToggleFavorite,
+                          tooltip: favoriteTooltip,
+                          icon: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorite ? colorScheme.error : colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
               Expanded(

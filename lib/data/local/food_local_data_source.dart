@@ -23,4 +23,14 @@ class FoodLocalDataSource {
     _cache = List<FoodItem>.from(dummyFoodItems);
     return _cache!;
   }
+
+  Future<FoodItem?> findById(String id) async {
+    final items = await fetchAll();
+    for (final item in items) {
+      if (item.id == id) {
+        return item;
+      }
+    }
+    return null;
+  }
 }
