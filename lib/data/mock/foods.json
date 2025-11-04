@@ -1,0 +1,682 @@
+[
+  {
+    "id": "food_1",
+    "titleAr": "وجبة خضراء 1",
+    "titleEn": "Green Meal 1",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 324,
+    "kcal": 526,
+    "price": 6.77,
+    "imageUrl": "https://picsum.photos/seed/food1/400/400",
+    "tags": [
+      "protein",
+      "premium"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_2",
+    "titleAr": "وجبة خضراء 2",
+    "titleEn": "Green Meal 2",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 432,
+    "kcal": 431,
+    "price": 16.25,
+    "imageUrl": "https://picsum.photos/seed/food2/400/400",
+    "tags": [
+      "gluten-free",
+      "premium"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_3",
+    "titleAr": "وجبة خضراء 3",
+    "titleEn": "Green Meal 3",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 431,
+    "kcal": 398,
+    "price": 16.91,
+    "imageUrl": "https://picsum.photos/seed/food3/400/400",
+    "tags": [
+      "seasonal",
+      "quick"
+    ],
+    "isVegan": true,
+    "isNew": false
+  },
+  {
+    "id": "food_4",
+    "titleAr": "وجبة خضراء 4",
+    "titleEn": "Green Meal 4",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 428,
+    "kcal": 542,
+    "price": 5.51,
+    "imageUrl": "https://picsum.photos/seed/food4/400/400",
+    "tags": [
+      "salad",
+      "fresh"
+    ],
+    "isVegan": false,
+    "isNew": true
+  },
+  {
+    "id": "food_5",
+    "titleAr": "وجبة خضراء 5",
+    "titleEn": "Green Meal 5",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 260,
+    "kcal": 457,
+    "price": 11.19,
+    "imageUrl": "https://picsum.photos/seed/food5/400/400",
+    "tags": [
+      "protein",
+      "premium"
+    ],
+    "isVegan": false,
+    "isNew": true
+  },
+  {
+    "id": "food_6",
+    "titleAr": "وجبة خضراء 6",
+    "titleEn": "Green Meal 6",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 349,
+    "kcal": 509,
+    "price": 11.28,
+    "imageUrl": "https://picsum.photos/seed/food6/400/400",
+    "tags": [
+      "seasonal",
+      "quick"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_7",
+    "titleAr": "وجبة خضراء 7",
+    "titleEn": "Green Meal 7",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 272,
+    "kcal": 487,
+    "price": 12.41,
+    "imageUrl": "https://picsum.photos/seed/food7/400/400",
+    "tags": [
+      "vegan",
+      "light"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_8",
+    "titleAr": "وجبة خضراء 8",
+    "titleEn": "Green Meal 8",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 339,
+    "kcal": 358,
+    "price": 7.8,
+    "imageUrl": "https://picsum.photos/seed/food8/400/400",
+    "tags": [
+      "vegan",
+      "premium"
+    ],
+    "isVegan": true,
+    "isNew": false
+  },
+  {
+    "id": "food_9",
+    "titleAr": "وجبة خضراء 9",
+    "titleEn": "Green Meal 9",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 242,
+    "kcal": 325,
+    "price": 5.2,
+    "imageUrl": "https://picsum.photos/seed/food9/400/400",
+    "tags": [
+      "salad",
+      "quick"
+    ],
+    "isVegan": true,
+    "isNew": false
+  },
+  {
+    "id": "food_10",
+    "titleAr": "وجبة خضراء 10",
+    "titleEn": "Green Meal 10",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 319,
+    "kcal": 328,
+    "price": 17.9,
+    "imageUrl": "https://picsum.photos/seed/food10/400/400",
+    "tags": [
+      "protein",
+      "premium"
+    ],
+    "isVegan": false,
+    "isNew": true
+  },
+  {
+    "id": "food_11",
+    "titleAr": "وجبة خضراء 11",
+    "titleEn": "Green Meal 11",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 307,
+    "kcal": 521,
+    "price": 17.36,
+    "imageUrl": "https://picsum.photos/seed/food11/400/400",
+    "tags": [
+      "vegan",
+      "fresh"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_12",
+    "titleAr": "وجبة خضراء 12",
+    "titleEn": "Green Meal 12",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 322,
+    "kcal": 483,
+    "price": 17.77,
+    "imageUrl": "https://picsum.photos/seed/food12/400/400",
+    "tags": [
+      "vegan",
+      "quick"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_13",
+    "titleAr": "وجبة خضراء 13",
+    "titleEn": "Green Meal 13",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 417,
+    "kcal": 619,
+    "price": 14.32,
+    "imageUrl": "https://picsum.photos/seed/food13/400/400",
+    "tags": [
+      "seasonal",
+      "light"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_14",
+    "titleAr": "وجبة خضراء 14",
+    "titleEn": "Green Meal 14",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 286,
+    "kcal": 297,
+    "price": 16.11,
+    "imageUrl": "https://picsum.photos/seed/food14/400/400",
+    "tags": [
+      "vegan",
+      "premium"
+    ],
+    "isVegan": true,
+    "isNew": false
+  },
+  {
+    "id": "food_15",
+    "titleAr": "وجبة خضراء 15",
+    "titleEn": "Green Meal 15",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 202,
+    "kcal": 330,
+    "price": 13.29,
+    "imageUrl": "https://picsum.photos/seed/food15/400/400",
+    "tags": [
+      "vegan",
+      "premium"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_16",
+    "titleAr": "وجبة خضراء 16",
+    "titleEn": "Green Meal 16",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 314,
+    "kcal": 570,
+    "price": 13.18,
+    "imageUrl": "https://picsum.photos/seed/food16/400/400",
+    "tags": [
+      "protein",
+      "quick"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_17",
+    "titleAr": "وجبة خضراء 17",
+    "titleEn": "Green Meal 17",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 214,
+    "kcal": 463,
+    "price": 11.82,
+    "imageUrl": "https://picsum.photos/seed/food17/400/400",
+    "tags": [
+      "protein",
+      "premium"
+    ],
+    "isVegan": false,
+    "isNew": true
+  },
+  {
+    "id": "food_18",
+    "titleAr": "وجبة خضراء 18",
+    "titleEn": "Green Meal 18",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 417,
+    "kcal": 478,
+    "price": 13.51,
+    "imageUrl": "https://picsum.photos/seed/food18/400/400",
+    "tags": [
+      "vegan",
+      "light"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_19",
+    "titleAr": "وجبة خضراء 19",
+    "titleEn": "Green Meal 19",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 201,
+    "kcal": 512,
+    "price": 19.12,
+    "imageUrl": "https://picsum.photos/seed/food19/400/400",
+    "tags": [
+      "seasonal",
+      "fresh"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_20",
+    "titleAr": "وجبة خضراء 20",
+    "titleEn": "Green Meal 20",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 327,
+    "kcal": 309,
+    "price": 9.19,
+    "imageUrl": "https://picsum.photos/seed/food20/400/400",
+    "tags": [
+      "vegan",
+      "quick"
+    ],
+    "isVegan": true,
+    "isNew": false
+  },
+  {
+    "id": "food_21",
+    "titleAr": "وجبة خضراء 21",
+    "titleEn": "Green Meal 21",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 229,
+    "kcal": 287,
+    "price": 18.32,
+    "imageUrl": "https://picsum.photos/seed/food21/400/400",
+    "tags": [
+      "salad",
+      "premium"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_22",
+    "titleAr": "وجبة خضراء 22",
+    "titleEn": "Green Meal 22",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 282,
+    "kcal": 522,
+    "price": 16.01,
+    "imageUrl": "https://picsum.photos/seed/food22/400/400",
+    "tags": [
+      "protein",
+      "quick"
+    ],
+    "isVegan": false,
+    "isNew": true
+  },
+  {
+    "id": "food_23",
+    "titleAr": "وجبة خضراء 23",
+    "titleEn": "Green Meal 23",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 285,
+    "kcal": 266,
+    "price": 15.32,
+    "imageUrl": "https://picsum.photos/seed/food23/400/400",
+    "tags": [
+      "vegan",
+      "fresh"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_24",
+    "titleAr": "وجبة خضراء 24",
+    "titleEn": "Green Meal 24",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 328,
+    "kcal": 291,
+    "price": 6.08,
+    "imageUrl": "https://picsum.photos/seed/food24/400/400",
+    "tags": [
+      "vegan",
+      "premium"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_25",
+    "titleAr": "وجبة خضراء 25",
+    "titleEn": "Green Meal 25",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 264,
+    "kcal": 274,
+    "price": 6.67,
+    "imageUrl": "https://picsum.photos/seed/food25/400/400",
+    "tags": [
+      "vegan",
+      "fresh"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_26",
+    "titleAr": "وجبة خضراء 26",
+    "titleEn": "Green Meal 26",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 329,
+    "kcal": 583,
+    "price": 8.37,
+    "imageUrl": "https://picsum.photos/seed/food26/400/400",
+    "tags": [
+      "protein",
+      "quick"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_27",
+    "titleAr": "وجبة خضراء 27",
+    "titleEn": "Green Meal 27",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 259,
+    "kcal": 511,
+    "price": 19.9,
+    "imageUrl": "https://picsum.photos/seed/food27/400/400",
+    "tags": [
+      "salad",
+      "quick"
+    ],
+    "isVegan": false,
+    "isNew": true
+  },
+  {
+    "id": "food_28",
+    "titleAr": "وجبة خضراء 28",
+    "titleEn": "Green Meal 28",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 332,
+    "kcal": 287,
+    "price": 14.71,
+    "imageUrl": "https://picsum.photos/seed/food28/400/400",
+    "tags": [
+      "vegan",
+      "premium"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_29",
+    "titleAr": "وجبة خضراء 29",
+    "titleEn": "Green Meal 29",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 344,
+    "kcal": 468,
+    "price": 14.32,
+    "imageUrl": "https://picsum.photos/seed/food29/400/400",
+    "tags": [
+      "vegan",
+      "light"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_30",
+    "titleAr": "وجبة خضراء 30",
+    "titleEn": "Green Meal 30",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 312,
+    "kcal": 314,
+    "price": 6.69,
+    "imageUrl": "https://picsum.photos/seed/food30/400/400",
+    "tags": [
+      "gluten-free",
+      "premium"
+    ],
+    "isVegan": false,
+    "isNew": true
+  },
+  {
+    "id": "food_31",
+    "titleAr": "وجبة خضراء 31",
+    "titleEn": "Green Meal 31",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 313,
+    "kcal": 566,
+    "price": 8.42,
+    "imageUrl": "https://picsum.photos/seed/food31/400/400",
+    "tags": [
+      "gluten-free",
+      "fresh"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_32",
+    "titleAr": "وجبة خضراء 32",
+    "titleEn": "Green Meal 32",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 377,
+    "kcal": 277,
+    "price": 10.01,
+    "imageUrl": "https://picsum.photos/seed/food32/400/400",
+    "tags": [
+      "seasonal",
+      "premium"
+    ],
+    "isVegan": true,
+    "isNew": false
+  },
+  {
+    "id": "food_33",
+    "titleAr": "وجبة خضراء 33",
+    "titleEn": "Green Meal 33",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 435,
+    "kcal": 263,
+    "price": 8.9,
+    "imageUrl": "https://picsum.photos/seed/food33/400/400",
+    "tags": [
+      "protein",
+      "light"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_34",
+    "titleAr": "وجبة خضراء 34",
+    "titleEn": "Green Meal 34",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 213,
+    "kcal": 642,
+    "price": 8.71,
+    "imageUrl": "https://picsum.photos/seed/food34/400/400",
+    "tags": [
+      "vegan",
+      "light"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_35",
+    "titleAr": "وجبة خضراء 35",
+    "titleEn": "Green Meal 35",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 298,
+    "kcal": 557,
+    "price": 16.77,
+    "imageUrl": "https://picsum.photos/seed/food35/400/400",
+    "tags": [
+      "gluten-free",
+      "quick"
+    ],
+    "isVegan": true,
+    "isNew": false
+  },
+  {
+    "id": "food_36",
+    "titleAr": "وجبة خضراء 36",
+    "titleEn": "Green Meal 36",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 317,
+    "kcal": 472,
+    "price": 10.09,
+    "imageUrl": "https://picsum.photos/seed/food36/400/400",
+    "tags": [
+      "gluten-free",
+      "quick"
+    ],
+    "isVegan": true,
+    "isNew": false
+  },
+  {
+    "id": "food_37",
+    "titleAr": "وجبة خضراء 37",
+    "titleEn": "Green Meal 37",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 242,
+    "kcal": 366,
+    "price": 11.07,
+    "imageUrl": "https://picsum.photos/seed/food37/400/400",
+    "tags": [
+      "vegan",
+      "premium"
+    ],
+    "isVegan": false,
+    "isNew": false
+  },
+  {
+    "id": "food_38",
+    "titleAr": "وجبة خضراء 38",
+    "titleEn": "Green Meal 38",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 389,
+    "kcal": 317,
+    "price": 12.45,
+    "imageUrl": "https://picsum.photos/seed/food38/400/400",
+    "tags": [
+      "protein",
+      "fresh"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_39",
+    "titleAr": "وجبة خضراء 39",
+    "titleEn": "Green Meal 39",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 234,
+    "kcal": 404,
+    "price": 9.18,
+    "imageUrl": "https://picsum.photos/seed/food39/400/400",
+    "tags": [
+      "gluten-free",
+      "light"
+    ],
+    "isVegan": true,
+    "isNew": true
+  },
+  {
+    "id": "food_40",
+    "titleAr": "وجبة خضراء 40",
+    "titleEn": "Green Meal 40",
+    "descAr": "وصف مختصر لوجبة نباتية وصحية.",
+    "descEn": "A short description for a healthy plant-based meal.",
+    "grams": 428,
+    "kcal": 372,
+    "price": 8.6,
+    "imageUrl": "https://picsum.photos/seed/food40/400/400",
+    "tags": [
+      "protein",
+      "light"
+    ],
+    "isVegan": true,
+    "isNew": true
+  }
+]
