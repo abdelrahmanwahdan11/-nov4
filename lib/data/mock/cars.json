@@ -1,0 +1,322 @@
+[
+  {
+    "id": "car_1",
+    "nameAr": "سيارة كهربائية 1",
+    "nameEn": "Electric Car 1",
+    "powerHp": 407,
+    "torqueNm": 471,
+    "zeroTo100": 4.1,
+    "rangeKmOrConsumption": 343,
+    "price": 46259,
+    "imageUrl": "https://picsum.photos/seed/car1/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "suv",
+      "family"
+    ]
+  },
+  {
+    "id": "car_2",
+    "nameAr": "سيارة كهربائية 2",
+    "nameEn": "Electric Car 2",
+    "powerHp": 266,
+    "torqueNm": 377,
+    "zeroTo100": 8.1,
+    "rangeKmOrConsumption": 477,
+    "price": 48039,
+    "imageUrl": "https://picsum.photos/seed/car2/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "suv",
+      "fast"
+    ]
+  },
+  {
+    "id": "car_3",
+    "nameAr": "سيارة كهربائية 3",
+    "nameEn": "Electric Car 3",
+    "powerHp": 569,
+    "torqueNm": 524,
+    "zeroTo100": 9.2,
+    "rangeKmOrConsumption": 597,
+    "price": 78617,
+    "imageUrl": "https://picsum.photos/seed/car3/600/400",
+    "model3DUrl": "https://example.com/models/car.glb",
+    "tags": [
+      "hybrid",
+      "fast"
+    ]
+  },
+  {
+    "id": "car_4",
+    "nameAr": "سيارة كهربائية 4",
+    "nameEn": "Electric Car 4",
+    "powerHp": 493,
+    "torqueNm": 636,
+    "zeroTo100": 5.5,
+    "rangeKmOrConsumption": 285,
+    "price": 92635,
+    "imageUrl": "https://picsum.photos/seed/car4/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "compact",
+      "efficient"
+    ]
+  },
+  {
+    "id": "car_5",
+    "nameAr": "سيارة كهربائية 5",
+    "nameEn": "Electric Car 5",
+    "powerHp": 557,
+    "torqueNm": 252,
+    "zeroTo100": 4.2,
+    "rangeKmOrConsumption": 294,
+    "price": 76558,
+    "imageUrl": "https://picsum.photos/seed/car5/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "suv",
+      "efficient"
+    ]
+  },
+  {
+    "id": "car_6",
+    "nameAr": "سيارة كهربائية 6",
+    "nameEn": "Electric Car 6",
+    "powerHp": 571,
+    "torqueNm": 603,
+    "zeroTo100": 6.4,
+    "rangeKmOrConsumption": 349,
+    "price": 114508,
+    "imageUrl": "https://picsum.photos/seed/car6/600/400",
+    "model3DUrl": "https://example.com/models/car.glb",
+    "tags": [
+      "ev",
+      "efficient"
+    ]
+  },
+  {
+    "id": "car_7",
+    "nameAr": "سيارة كهربائية 7",
+    "nameEn": "Electric Car 7",
+    "powerHp": 561,
+    "torqueNm": 484,
+    "zeroTo100": 5.4,
+    "rangeKmOrConsumption": 454,
+    "price": 60825,
+    "imageUrl": "https://picsum.photos/seed/car7/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "ev",
+      "efficient"
+    ]
+  },
+  {
+    "id": "car_8",
+    "nameAr": "سيارة كهربائية 8",
+    "nameEn": "Electric Car 8",
+    "powerHp": 432,
+    "torqueNm": 267,
+    "zeroTo100": 7.8,
+    "rangeKmOrConsumption": 643,
+    "price": 71338,
+    "imageUrl": "https://picsum.photos/seed/car8/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "compact",
+      "efficient"
+    ]
+  },
+  {
+    "id": "car_9",
+    "nameAr": "سيارة كهربائية 9",
+    "nameEn": "Electric Car 9",
+    "powerHp": 469,
+    "torqueNm": 724,
+    "zeroTo100": 5.6,
+    "rangeKmOrConsumption": 574,
+    "price": 72212,
+    "imageUrl": "https://picsum.photos/seed/car9/600/400",
+    "model3DUrl": "https://example.com/models/car.glb",
+    "tags": [
+      "suv",
+      "fast"
+    ]
+  },
+  {
+    "id": "car_10",
+    "nameAr": "سيارة كهربائية 10",
+    "nameEn": "Electric Car 10",
+    "powerHp": 478,
+    "torqueNm": 298,
+    "zeroTo100": 8.3,
+    "rangeKmOrConsumption": 329,
+    "price": 111527,
+    "imageUrl": "https://picsum.photos/seed/car10/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "luxury",
+      "efficient"
+    ]
+  },
+  {
+    "id": "car_11",
+    "nameAr": "سيارة كهربائية 11",
+    "nameEn": "Electric Car 11",
+    "powerHp": 534,
+    "torqueNm": 510,
+    "zeroTo100": 7.1,
+    "rangeKmOrConsumption": 611,
+    "price": 79076,
+    "imageUrl": "https://picsum.photos/seed/car11/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "ev",
+      "fast"
+    ]
+  },
+  {
+    "id": "car_12",
+    "nameAr": "سيارة كهربائية 12",
+    "nameEn": "Electric Car 12",
+    "powerHp": 353,
+    "torqueNm": 464,
+    "zeroTo100": 6.4,
+    "rangeKmOrConsumption": 348,
+    "price": 116090,
+    "imageUrl": "https://picsum.photos/seed/car12/600/400",
+    "model3DUrl": "https://example.com/models/car.glb",
+    "tags": [
+      "suv",
+      "city"
+    ]
+  },
+  {
+    "id": "car_13",
+    "nameAr": "سيارة كهربائية 13",
+    "nameEn": "Electric Car 13",
+    "powerHp": 433,
+    "torqueNm": 688,
+    "zeroTo100": 7.3,
+    "rangeKmOrConsumption": 413,
+    "price": 47463,
+    "imageUrl": "https://picsum.photos/seed/car13/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "ev",
+      "city"
+    ]
+  },
+  {
+    "id": "car_14",
+    "nameAr": "سيارة كهربائية 14",
+    "nameEn": "Electric Car 14",
+    "powerHp": 512,
+    "torqueNm": 666,
+    "zeroTo100": 4.4,
+    "rangeKmOrConsumption": 309,
+    "price": 57116,
+    "imageUrl": "https://picsum.photos/seed/car14/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "suv",
+      "family"
+    ]
+  },
+  {
+    "id": "car_15",
+    "nameAr": "سيارة كهربائية 15",
+    "nameEn": "Electric Car 15",
+    "powerHp": 504,
+    "torqueNm": 763,
+    "zeroTo100": 6.0,
+    "rangeKmOrConsumption": 262,
+    "price": 58194,
+    "imageUrl": "https://picsum.photos/seed/car15/600/400",
+    "model3DUrl": "https://example.com/models/car.glb",
+    "tags": [
+      "luxury",
+      "family"
+    ]
+  },
+  {
+    "id": "car_16",
+    "nameAr": "سيارة كهربائية 16",
+    "nameEn": "Electric Car 16",
+    "powerHp": 509,
+    "torqueNm": 762,
+    "zeroTo100": 7.3,
+    "rangeKmOrConsumption": 264,
+    "price": 76771,
+    "imageUrl": "https://picsum.photos/seed/car16/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "luxury",
+      "efficient"
+    ]
+  },
+  {
+    "id": "car_17",
+    "nameAr": "سيارة كهربائية 17",
+    "nameEn": "Electric Car 17",
+    "powerHp": 597,
+    "torqueNm": 291,
+    "zeroTo100": 4.5,
+    "rangeKmOrConsumption": 456,
+    "price": 47884,
+    "imageUrl": "https://picsum.photos/seed/car17/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "ev",
+      "efficient"
+    ]
+  },
+  {
+    "id": "car_18",
+    "nameAr": "سيارة كهربائية 18",
+    "nameEn": "Electric Car 18",
+    "powerHp": 597,
+    "torqueNm": 611,
+    "zeroTo100": 3.7,
+    "rangeKmOrConsumption": 476,
+    "price": 79190,
+    "imageUrl": "https://picsum.photos/seed/car18/600/400",
+    "model3DUrl": "https://example.com/models/car.glb",
+    "tags": [
+      "compact",
+      "efficient"
+    ]
+  },
+  {
+    "id": "car_19",
+    "nameAr": "سيارة كهربائية 19",
+    "nameEn": "Electric Car 19",
+    "powerHp": 229,
+    "torqueNm": 619,
+    "zeroTo100": 8.0,
+    "rangeKmOrConsumption": 324,
+    "price": 116607,
+    "imageUrl": "https://picsum.photos/seed/car19/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "ev",
+      "city"
+    ]
+  },
+  {
+    "id": "car_20",
+    "nameAr": "سيارة كهربائية 20",
+    "nameEn": "Electric Car 20",
+    "powerHp": 528,
+    "torqueNm": 527,
+    "zeroTo100": 4.7,
+    "rangeKmOrConsumption": 470,
+    "price": 52877,
+    "imageUrl": "https://picsum.photos/seed/car20/600/400",
+    "model3DUrl": null,
+    "tags": [
+      "compact",
+      "family"
+    ]
+  }
+]

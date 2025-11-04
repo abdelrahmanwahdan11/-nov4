@@ -1,0 +1,37 @@
+name: greenly
+description: A comprehensive Flutter app for sustainable meals and car comparisons.
+publish_to: 'none'
+version: 1.0.0+1
+environment:
+  sdk: ">=3.1.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  google_fonts: ^6.0.0
+  shared_preferences: ^2.2.2
+  iconly: ^1.0.2
+  animations: ^2.0.7
+  tutorial_coach_mark: ^2.0.3
+  flip_card: ^0.7.0
+  flutter_3d_controller: ^0.0.6
+  intl: ^0.18.1
+  collection: ^1.18.0
+  provider: ^6.0.5
+  json_annotation: ^4.8.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  build_runner: ^2.4.6
+  json_serializable: ^6.7.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - lib/data/mock/
+    - l10n/
+  generate: true
