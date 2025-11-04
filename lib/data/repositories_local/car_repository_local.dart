@@ -98,6 +98,14 @@ class CarRepositoryLocal {
         if (maxRange != null && item.rangeKmOrConsumption > maxRange) {
           return false;
         }
+        final double? minTorque = _asDouble(combinedFilters['minTorque']);
+        final double? maxTorque = _asDouble(combinedFilters['maxTorque']);
+        if (minTorque != null && item.torqueNm < minTorque) {
+          return false;
+        }
+        if (maxTorque != null && item.torqueNm > maxTorque) {
+          return false;
+        }
         final Iterable<dynamic>? tagsFilter = combinedFilters['tags'] as Iterable<dynamic>?;
         if (tagsFilter != null && tagsFilter.isNotEmpty) {
           final normalizedTags = tagsFilter.map((tag) => tag.toString().toLowerCase()).toSet();
@@ -147,6 +155,13 @@ class CarRepositoryLocal {
     } catch (_) {
       return null;
     }
+  }
+
+  Future<List<String>> getAvailableTags() async {
+    await _ensureLoaded();
+    final tags = _cache.expand((item) => item.tags).map((tag) => tag.toLowerCase()).toSet().toList();
+    tags.sort();
+    return tags;
   }
 
   double? _asDouble(Object? value) {

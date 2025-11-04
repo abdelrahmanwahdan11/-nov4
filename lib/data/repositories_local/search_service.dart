@@ -74,6 +74,15 @@ class SearchService {
       if (_tryParseRangeFilter(normalized, filters, key: 'grams')) {
         continue;
       }
+      if (_tryParseRangeFilter(normalized, filters, key: 'power')) {
+        continue;
+      }
+      if (_tryParseRangeFilter(normalized, filters, key: 'torque')) {
+        continue;
+      }
+      if (_tryParseRangeFilter(normalized, filters, key: 'range')) {
+        continue;
+      }
       if (normalized.startsWith('vegan:')) {
         filters['vegan'] = normalized.endsWith('false') ? false : true;
         continue;
@@ -155,6 +164,18 @@ class SearchService {
       case 'grams':
         minKey = 'minGrams';
         maxKey = 'maxGrams';
+        break;
+      case 'power':
+        minKey = 'minPower';
+        maxKey = 'maxPower';
+        break;
+      case 'torque':
+        minKey = 'minTorque';
+        maxKey = 'maxTorque';
+        break;
+      case 'range':
+        minKey = 'minRange';
+        maxKey = 'maxRange';
         break;
       default:
         minKey = 'min$key';

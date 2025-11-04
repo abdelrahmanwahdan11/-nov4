@@ -19,6 +19,9 @@ class AppConstants {
   static const pageSizeFoods = 20;
   static const pageSizeCars = 10;
 
+  static const double tabletBreakpoint = 768;
+  static const double desktopBreakpoint = 1100;
+
   static const primaryColorPalette = [
     Color(0xFF4CAF50),
     Color(0xFF009688),
@@ -27,5 +30,12 @@ class AppConstants {
     Color(0xFFFF9800),
     Color(0xFFE91E63),
     Color(0xFF9C27B0),
+  ];
+
+  static const carSortOptions = [
+    'price_asc',
+    'price_desc',
+    'power_desc',
+    'range_desc',
   ];
 }

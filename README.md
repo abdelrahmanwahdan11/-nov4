@@ -10,7 +10,7 @@ A Flutter application concept showcasing sustainable meal discovery and electric
 - Authentication stubs for login, registration, and password recovery.
 - Home and catalog listings with pagination, pull-to-refresh, and skeleton loaders.
 - Product details with flip card nutritional info and cart management.
-- Car comparison dashboard with 3D viewer placeholder.
+- Car comparison dashboard with localized filters, highlights, and upgraded 3D viewer controls.
 - Settings for language, theme, and tutorial reset.
 
 ## Getting started
