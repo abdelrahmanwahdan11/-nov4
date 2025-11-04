@@ -10,6 +10,7 @@ import '../../controllers/catalog_controller.dart';
 import '../../controllers/content_status.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/favorites_controller.dart';
+import '../../controllers/home_collections_controller.dart';
 import '../../controllers/recently_viewed_controller.dart';
 import '../../controllers/tutorial_controller.dart';
 import '../../widgets/content_state_view.dart';
@@ -78,6 +79,8 @@ class _MenuPageState extends State<MenuPage> {
   CartController? _cartController;
   FavoritesController? _favoritesController;
   RecentlyViewedController? _recentlyViewedController;
+  HomeCollectionsController? _collectionsController;
+  late final FoodLocalDataSource _foodDataSource = FoodLocalDataSource();
 
   CatalogController get _catalogController => _controller!;
 
@@ -85,6 +88,7 @@ class _MenuPageState extends State<MenuPage> {
   void dispose() {
     _selectedTag.dispose();
     _controller?.dispose();
+    _collectionsController?.dispose();
     super.dispose();
   }
 
@@ -96,12 +100,16 @@ class _MenuPageState extends State<MenuPage> {
     _recentlyViewedController = RecentlyViewedScope.maybeOf(context);
     final appController = AppScope.of(context);
     _controller ??= CatalogController(
-      dataSource: FoodLocalDataSource(),
+      dataSource: _foodDataSource,
       connectionOverride: appController.connectionOverride,
       sortOption: appController.catalogSortOption,
       onSortOptionChanged: appController.setCatalogSortOption,
     )
       ..loadInitial();
+    _collectionsController ??= HomeCollectionsController(
+      dataSource: _foodDataSource,
+      connectionOverride: appController.connectionOverride,
+    );
   }
 
   void _openCatalog() {
@@ -213,6 +221,48 @@ class _MenuPageState extends State<MenuPage> {
                 }),
               ),
             ),
+            if (_collectionsController != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: padding.add(const EdgeInsets.only(top: 8, bottom: 4)),
+                  child: _CollectionsCarouselSection(
+                    title: context.tr('section_deals'),
+                    subtitle: context.tr('section_deals_subtitle'),
+                    emptyMessage: context.tr('section_deals_empty'),
+                    stateListenable: _collectionsController!.deals,
+                    onRequestLoad: _collectionsController!.loadDeals,
+                    cardBuilder: (item) => _buildCardWithActions(context, item),
+                  ),
+                ),
+              ),
+            if (_collectionsController != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: padding.add(const EdgeInsets.symmetric(vertical: 4)),
+                  child: _CollectionsCarouselSection(
+                    title: context.tr('section_healthiest'),
+                    subtitle: context.tr('section_healthiest_subtitle'),
+                    emptyMessage: context.tr('section_healthiest_empty'),
+                    stateListenable: _collectionsController!.healthiest,
+                    onRequestLoad: _collectionsController!.loadHealthiest,
+                    cardBuilder: (item) => _buildCardWithActions(context, item),
+                  ),
+                ),
+              ),
+            if (_collectionsController != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: padding.add(const EdgeInsets.symmetric(vertical: 4)),
+                  child: _CollectionsCarouselSection(
+                    title: context.tr('section_plant_based'),
+                    subtitle: context.tr('section_plant_based_subtitle'),
+                    emptyMessage: context.tr('section_plant_based_empty'),
+                    stateListenable: _collectionsController!.plantBased,
+                    onRequestLoad: _collectionsController!.loadPlantBased,
+                    cardBuilder: (item) => _buildCardWithActions(context, item),
+                  ),
+                ),
+              ),
             if (_favoritesController != null)
               SliverToBoxAdapter(
                 child: ValueListenableBuilder<List<FoodItem>>(
@@ -538,6 +588,247 @@ class _HorizontalSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CollectionsCarouselSection extends StatefulWidget {
+  const _CollectionsCarouselSection({
+    required this.title,
+    required this.subtitle,
+    required this.emptyMessage,
+    required this.stateListenable,
+    required this.onRequestLoad,
+    required this.cardBuilder,
+  });
+
+  final String title;
+  final String subtitle;
+  final String emptyMessage;
+  final ValueListenable<HomeCollectionState> stateListenable;
+  final VoidCallback onRequestLoad;
+  final Widget Function(FoodItem) cardBuilder;
+
+  @override
+  State<_CollectionsCarouselSection> createState() => _CollectionsCarouselSectionState();
+}
+
+class _CollectionsCarouselSectionState extends State<_CollectionsCarouselSection> {
+  late final PageController _pageController;
+  final ValueNotifier<int> _currentPage = ValueNotifier<int>(0);
+  int _lastItemCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.86);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _currentPage.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return ValueListenableBuilder<HomeCollectionState>(
+      valueListenable: widget.stateListenable,
+      builder: (context, state, _) {
+        if (state.status == ContentStatus.idle) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) {
+              return;
+            }
+            widget.onRequestLoad();
+          });
+        }
+
+        Widget body;
+        Key bodyKey = ValueKey<String>('state_${state.status.name}');
+        switch (state.status) {
+          case ContentStatus.loading:
+          case ContentStatus.idle:
+            body = const _CollectionsCarouselSkeleton();
+            bodyKey = const ValueKey<String>('state_loading');
+            break;
+          case ContentStatus.success:
+            final items = state.items;
+            final itemCount = items.length;
+            if (_lastItemCount != itemCount) {
+              _lastItemCount = itemCount;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) {
+                  return;
+                }
+                _currentPage.value = 0;
+                if (_pageController.hasClients) {
+                  _pageController.jumpToPage(0);
+                }
+              });
+            } else if (_currentPage.value >= itemCount) {
+              _currentPage.value = itemCount - 1;
+            }
+            bodyKey = ValueKey<String>('state_success_$itemCount');
+            body = Column(
+              children: [
+                SizedBox(
+                  height: 300,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    physics: itemCount <= 1
+                        ? const NeverScrollableScrollPhysics()
+                        : const BouncingScrollPhysics(),
+                    itemCount: itemCount,
+                    onPageChanged: (index) => _currentPage.value = index,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: widget.cardBuilder(items[index]),
+                      );
+                    },
+                  ),
+                ),
+                if (itemCount > 1)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: ValueListenableBuilder<int>(
+                      valueListenable: _currentPage,
+                      builder: (context, current, __) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List<Widget>.generate(itemCount, (index) {
+                            final isActive = index == current;
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 240),
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              height: 6,
+                              width: isActive ? 18 : 6,
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.primary
+                                    .withOpacity(isActive ? 1 : 0.25),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                            );
+                          }),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            );
+            break;
+          case ContentStatus.empty:
+            bodyKey = const ValueKey<String>('state_empty');
+            body = ContentStateView(
+              icon: Icons.inbox_outlined,
+              title: widget.title,
+              message: widget.emptyMessage,
+              primaryAction: TextButton(
+                onPressed: widget.onRequestLoad,
+                child: Text(context.tr('state_refresh_section')),
+              ),
+            );
+            break;
+          case ContentStatus.error:
+            bodyKey = const ValueKey<String>('state_error');
+            body = ContentStateView(
+              icon: Icons.warning_rounded,
+              title: context.tr('state_error_title'),
+              message: context.tr(state.errorKey ?? 'state_error_message'),
+              primaryAction: FilledButton(
+                onPressed: widget.onRequestLoad,
+                child: Text(context.tr('state_try_again')),
+              ),
+            );
+            break;
+          case ContentStatus.offline:
+            bodyKey = const ValueKey<String>('state_offline');
+            body = ContentStateView(
+              icon: Icons.wifi_off,
+              title: context.tr('state_offline_title'),
+              message: context.tr('state_offline_message'),
+              primaryAction: FilledButton(
+                onPressed: widget.onRequestLoad,
+                child: Text(context.tr('state_try_again')),
+              ),
+            );
+            break;
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.title,
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.subtitle,
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 360),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              child: KeyedSubtree(key: bodyKey, child: body),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _CollectionsCarouselSkeleton extends StatefulWidget {
+  const _CollectionsCarouselSkeleton();
+
+  @override
+  State<_CollectionsCarouselSkeleton> createState() => _CollectionsCarouselSkeletonState();
+}
+
+class _CollectionsCarouselSkeletonState extends State<_CollectionsCarouselSkeleton> {
+  late final PageController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PageController(viewportFraction: 0.86);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 300,
+      child: PageView.builder(
+        controller: _controller,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 3,
+        itemBuilder: (context, index) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: FoodCardSkeleton(),
+          );
+        },
+      ),
     );
   }
 }
