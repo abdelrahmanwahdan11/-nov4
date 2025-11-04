@@ -9,12 +9,59 @@ import '../../controllers/cart_controller.dart';
 import '../../widgets/food_card.dart';
 import '../catalog/catalog_page.dart';
 import '../item/item_details_page.dart';
+import '../compare/compare_cars_page.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
 
   @override
   State<MenuPage> createState() => _MenuPageState();
+}
+
+class _CompareCarsHighlight extends StatelessWidget {
+  const _CompareCarsHighlight({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          colors: [
+            colorScheme.primary.withOpacity(0.16),
+            colorScheme.primary.withOpacity(0.06),
+          ],
+        ),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.tr('compare_cta_title'),
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            context.tr('compare_cta_desc'),
+            style: theme.textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: onPressed,
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+            child: Text(context.tr('compare_cta_button')),
+          ),
+        ],
+      ).animate().fadeIn(duration: const Duration(milliseconds: 360)),
+    );
+  }
 }
 
 class _MenuPageState extends State<MenuPage> {
@@ -132,6 +179,14 @@ class _MenuPageState extends State<MenuPage> {
                     );
                   },
                 ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: _CompareCarsHighlight(onPressed: () {
+                  Navigator.of(context).pushNamed(CompareCarsPage.routeName);
+                }),
               ),
             ),
             ValueListenableBuilder<bool>(
