@@ -1,0 +1,855 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../../core/locale/localization_extension.dart';
+import '../../../core/theme/theme_tokens.dart';
+import '../../../core/utils/responsive.dart';
+import '../../../domain/models/catalog_filter_preset.dart';
+import '../../../domain/models/food_item.dart';
+import '../../controllers/app_controller.dart';
+import '../../controllers/cart_controller.dart';
+import '../../controllers/catalog_controller.dart';
+import '../../controllers/content_status.dart';
+import '../../controllers/favorites_controller.dart';
+import '../../widgets/content_state_view.dart';
+import '../../widgets/food_card.dart';
+import '../../widgets/quick_action_card.dart';
+import '../item/item_details_page.dart';
+
+class CatalogPage extends StatefulWidget {
+  const CatalogPage({super.key, required this.controller});
+
+  static const routeName = '/catalog';
+
+  final CatalogController controller;
+
+  @override
+  State<CatalogPage> createState() => _CatalogPageState();
+}
+
+class _CatalogPageState extends State<CatalogPage> {
+  late final ScrollController _scrollController;
+  CartController? _cartController;
+  FavoritesController? _favoritesController;
+
+  CatalogController get _controller => widget.controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_handleScroll);
+    _controller.loadInitial();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _cartController = CartScope.of(context);
+    _favoritesController = FavoritesScope.maybeOf(context);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_handleScroll);
+    _scrollController.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleScroll() {
+    if (!_controller.hasMore.value) {
+      return;
+    }
+    if (_scrollController.position.pixels >
+        _scrollController.position.maxScrollExtent - 200) {
+      _controller.loadMore();
+    }
+  }
+
+  Future<void> _addToCart(FoodItem item) async {
+    final controller = _cartController;
+    if (controller != null) {
+      await controller.addItem(item);
+    }
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${context.tr('added_to_cart')} ${item.name}'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Widget _buildCard(FoodItem item) {
+    final favorites = _favoritesController;
+    if (favorites == null) {
+      return FoodCard(
+        item: item,
+        onTap: () => Navigator.of(context).pushNamed(
+          ItemDetailsPage.routeName,
+          arguments: item,
+        ),
+        onAdd: () {
+          _addToCart(item);
+        },
+      );
+    }
+    return ValueListenableBuilder<List<String>>(
+      valueListenable: favorites.favoriteIds,
+      builder: (context, ids, _) {
+        final isFavorite = ids.contains(item.id);
+        final favoriteLabel = context.tr(isFavorite ? 'action_unfavorite' : 'action_favorite');
+        final addLabel = context.tr('quick_add_to_cart');
+        final card = FoodCard(
+          item: item,
+          onTap: () => Navigator.of(context).pushNamed(
+            ItemDetailsPage.routeName,
+            arguments: item,
+          ),
+          onAdd: () {
+            _addToCart(item);
+          },
+          onToggleFavorite: () {
+            favorites.toggleFavorite(item);
+          },
+          isFavorite: isFavorite,
+          favoriteTooltip: favoriteLabel,
+        );
+        return QuickActionCard(
+          id: item.id,
+          child: card,
+          onFavorite: () {
+            favorites.toggleFavorite(item);
+          },
+          onAddToCart: () {
+            _addToCart(item);
+          },
+          favoriteLabel: favoriteLabel,
+          addLabel: addLabel,
+          isFavorite: isFavorite,
+        );
+      },
+    );
+  }
+
+  Future<void> _onRefresh() async {
+    await _controller.refresh();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final appController = AppScope.of(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final padding = ResponsiveBreakpoints.pagePadding(constraints.maxWidth);
+        return ValueListenableBuilder<ContentDensity>(
+          valueListenable: appController.contentDensity,
+          builder: (context, density, _) {
+            final verticalSpacing = ThemeTokens.listSpacingForDensity(density);
+            final gridSpacing = ThemeTokens.gridSpacingForDensity(density);
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(context.tr('catalog_title')),
+                actions: [
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _controller.isGridMode,
+                    builder: (context, isGrid, _) {
+                      return IconButton(
+                        onPressed: _controller.toggleGridMode,
+                        icon: Icon(isGrid ? Icons.view_agenda_outlined : Icons.grid_view_rounded),
+                        tooltip: isGrid ? context.tr('list_view') : context.tr('grid_view'),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              body: RefreshIndicator(
+                onRefresh: _onRefresh,
+                child: ValueListenableBuilder<ContentStatus>(
+                  valueListenable: _controller.status,
+                  builder: (context, state, _) {
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (notification is OverscrollNotification &&
+                            notification.overscroll > 0 &&
+                            _controller.hasMore.value) {
+                          _controller.loadMore();
+                        }
+                        return false;
+                      },
+                      child: CustomScrollView(
+                        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                        controller: _scrollController,
+                        slivers: [
+                          SliverToBoxAdapter(child: _FiltersPanel(controller: _controller)),
+                          if (state == ContentStatus.loading && _controller.items.value.isEmpty)
+                            SliverPadding(
+                              padding: padding.add(
+                                EdgeInsets.symmetric(vertical: verticalSpacing),
+                              ),
+                              sliver: SliverLayoutBuilder(
+                                builder: (context, constraints) {
+                                  final crossAxisCount = ResponsiveBreakpoints.columnsForWidth(
+                                    constraints.crossAxisExtent,
+                                    min: 1,
+                                    max: 5,
+                                  );
+                                  final aspectRatio = ResponsiveBreakpoints
+                                      .foodCardAspectRatio(constraints.crossAxisExtent);
+                                  return SliverGrid(
+                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: crossAxisCount,
+                                      childAspectRatio: aspectRatio,
+                                      crossAxisSpacing: gridSpacing,
+                                      mainAxisSpacing: gridSpacing,
+                                    ),
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) => FoodCardSkeleton(),
+                                      childCount: crossAxisCount * 2,
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          else if (state == ContentStatus.offline || state == ContentStatus.error)
+                            SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: ContentStateView(
+                                icon: state == ContentStatus.offline ? Icons.wifi_off : Icons.warning_rounded,
+                                title: context.tr(
+                                  state == ContentStatus.offline ? 'state_offline_title' : 'state_error_title',
+                                ),
+                                message: context.tr(
+                                  state == ContentStatus.offline
+                                      ? 'state_offline_message'
+                                      : _controller.errorKey.value ?? 'state_error_message',
+                                ),
+                                primaryAction: FilledButton(
+                                  onPressed: () => _controller.retry(),
+                                  child: Text(context.tr('state_try_again')),
+                                ),
+                              ),
+                            )
+                          else
+                            SliverPadding(
+                              padding: padding.add(
+                                EdgeInsets.symmetric(vertical: verticalSpacing),
+                              ),
+                              sliver: ValueListenableBuilder<List<FoodItem>>(
+                                valueListenable: _controller.items,
+                                builder: (context, items, _) {
+                                  if (items.isEmpty) {
+                                    return SliverFillRemaining(
+                                      hasScrollBody: false,
+                                      child: ContentStateView(
+                                        icon: Icons.search_off,
+                                        title: context.tr('catalog_empty'),
+                                        message: context.tr('state_empty_menu_message'),
+                                        primaryAction: TextButton(
+                                          onPressed: () => _controller.refresh(),
+                                          child: Text(context.tr('state_try_again')),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  return ValueListenableBuilder<CatalogSortOption>(
+                                    valueListenable: _controller.sortOption,
+                                    builder: (context, sort, __) {
+                                      return ValueListenableBuilder<bool>(
+                                        valueListenable: _controller.isGridMode,
+                                        builder: (context, isGrid, _) {
+                                          if (isGrid) {
+                                            return SliverLayoutBuilder(
+                                              builder: (context, constraints) {
+                                                final crossAxisCount = ResponsiveBreakpoints.columnsForWidth(
+                                                  constraints.crossAxisExtent,
+                                                  min: 1,
+                                                  max: 5,
+                                                );
+                                                final aspectRatio = ResponsiveBreakpoints
+                                                    .foodCardAspectRatio(constraints.crossAxisExtent);
+                                                return SliverGrid(
+                                                  key: ValueKey('grid-${sort.name}'),
+                                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: crossAxisCount,
+                                                    childAspectRatio: aspectRatio,
+                                                    crossAxisSpacing: gridSpacing,
+                                                    mainAxisSpacing: gridSpacing,
+                                                  ),
+                                                  delegate: SliverChildBuilderDelegate(
+                                                    (context, index) {
+                                                      final item = items[index];
+                                                      final card = _buildCard(item);
+                                                      return card
+                                                          .animate(
+                                                            key: ValueKey('${item.id}-${sort.name}-$index'),
+                                                          )
+                                                          .fadeIn(
+                                                            duration: const Duration(milliseconds: 240),
+                                                            curve: Curves.easeOutCubic,
+                                                          )
+                                                          .moveY(
+                                                            begin: 18,
+                                                            end: 0,
+                                                            duration: const Duration(milliseconds: 260),
+                                                            curve: Curves.easeOutCubic,
+                                                          );
+                                                    },
+                                                    childCount: items.length,
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          }
+                                          return SliverList(
+                                            key: ValueKey('list-${sort.name}'),
+                                            delegate: SliverChildBuilderDelegate(
+                                              (context, index) {
+                                                final item = items[index];
+                                                final card = _buildCard(item);
+                                                return Padding(
+                                                  padding: EdgeInsets.only(bottom: verticalSpacing),
+                                                  child: card
+                                                      .animate(
+                                                        key: ValueKey('${item.id}-${sort.name}-$index'),
+                                                      )
+                                                      .fadeIn(
+                                                        duration: const Duration(milliseconds: 220),
+                                                        curve: Curves.easeOutCubic,
+                                                      )
+                                                      .moveY(
+                                                        begin: 16,
+                                                        end: 0,
+                                                        duration: const Duration(milliseconds: 240),
+                                                        curve: Curves.easeOutCubic,
+                                                      ),
+                                                );
+                                              },
+                                              childCount: items.length,
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          SliverToBoxAdapter(
+                            child: ValueListenableBuilder<bool>(
+                              valueListenable: _controller.hasMore,
+                              builder: (context, hasMore, _) {
+                                if (!hasMore) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 24),
+                                    child: Center(
+                                      child: Text(
+                                        context.tr('catalog_end'),
+                                        style: theme.textTheme.bodySmall,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                return ValueListenableBuilder<bool>(
+                                  valueListenable: _controller.isPaginating,
+                                  builder: (context, paginating, __) {
+                                    if (paginating) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 24),
+                                        child: Center(
+                                          child: const CircularProgressIndicator()
+                                              .animate(onPlay: (controller) => controller.repeat()),
+                                        ),
+                                      );
+                                    }
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 24),
+                                      child: Center(
+                                        child: TextButton.icon(
+                                          onPressed: _controller.loadMore,
+                                          icon: const Icon(Icons.expand_more),
+                                          label: Text(context.tr('load_more')),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _FiltersPanel extends StatelessWidget {
+  const _FiltersPanel({required this.controller});
+
+  final CatalogController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return ValueListenableBuilder<CatalogFilters>(
+      valueListenable: controller.filters,
+      builder: (context, filters, _) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.tr('filters_title'),
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => _handleSavePreset(context),
+                    icon: const Icon(Icons.bookmark_add_outlined),
+                    label: Text(context.tr('filters_save_preset')),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _SortingCenter(controller: controller),
+              const SizedBox(height: 16),
+              ValueListenableBuilder<List<CatalogFilterPreset>>(
+                valueListenable: controller.pinnedPresets,
+                builder: (context, pinned, _) {
+                  if (pinned.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('filters_pinned_presets'),
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: pinned
+                            .map(
+                              (preset) => ActionChip(
+                                avatar: const Icon(Icons.push_pin_outlined, size: 18),
+                                label: Text(preset.name),
+                                onPressed: () => _handleApplyPreset(context, preset),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                },
+              ),
+              ValueListenableBuilder<List<CatalogFilterPreset>>(
+                valueListenable: controller.presets,
+                builder: (context, presets, _) {
+                  if (presets.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        context.tr('filters_no_presets'),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    );
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('filters_saved_presets'),
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      ...presets.map(
+                        (preset) => _PresetTile(
+                          preset: preset,
+                          onApply: () => _handleApplyPreset(context, preset),
+                          onDelete: () => _handleDeletePreset(context, preset),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                },
+              ),
+              const Divider(height: 32),
+              _RangeTile(
+                title: context.tr('filters_price'),
+                range: filters.priceRange,
+                min: controller.priceBounds.start,
+                max: controller.priceBounds.end,
+                labels: RangeLabels(
+                  '\$${filters.priceRange.start.toStringAsFixed(0)}',
+                  '\$${filters.priceRange.end.toStringAsFixed(0)}',
+                ),
+                onChanged: controller.updatePrice,
+              ),
+              const SizedBox(height: 12),
+              _RangeTile(
+                title: context.tr('filters_weight'),
+                range: filters.weightRange,
+                min: controller.weightBounds.start,
+                max: controller.weightBounds.end,
+                labels: RangeLabels(
+                  '${filters.weightRange.start.toStringAsFixed(0)} g',
+                  '${filters.weightRange.end.toStringAsFixed(0)} g',
+                ),
+                onChanged: controller.updateWeight,
+              ),
+              const SizedBox(height: 12),
+              _RangeTile(
+                title: context.tr('filters_kcal'),
+                range: filters.kcalRange,
+                min: controller.kcalBounds.start,
+                max: controller.kcalBounds.end,
+                labels: RangeLabels(
+                  '${filters.kcalRange.start.toStringAsFixed(0)} kcal',
+                  '${filters.kcalRange.end.toStringAsFixed(0)} kcal',
+                ),
+                onChanged: controller.updateKcal,
+              ),
+              const SizedBox(height: 16),
+              ValueListenableBuilder<List<String>>(
+                valueListenable: controller.availableTags,
+                builder: (context, tags, _) {
+                  if (tags.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: tags
+                        .map(
+                          (tag) => FilterChip(
+                            label: Text(tag),
+                            selected: filters.selectedTags.contains(tag),
+                            onSelected: (_) => controller.toggleTag(tag),
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _handleSavePreset(BuildContext context) async {
+    final name = await _promptPresetName(context);
+    if (name == null || name.trim().isEmpty) {
+      return;
+    }
+    final result = await controller.savePreset(name);
+    if (!context.mounted) {
+      return;
+    }
+    final key = result == PresetSaveResult.created
+        ? 'filters_preset_saved'
+        : 'filters_preset_updated';
+    _showSnackBar(context, context.tr(key));
+  }
+
+  Future<void> _handleApplyPreset(
+    BuildContext context,
+    CatalogFilterPreset preset,
+  ) async {
+    final applied = await controller.applyPreset(preset.id);
+    if (!context.mounted || !applied) {
+      return;
+    }
+    _showSnackBar(context, context.tr('filters_preset_applied'));
+  }
+
+  Future<void> _handleDeletePreset(
+    BuildContext context,
+    CatalogFilterPreset preset,
+  ) async {
+    final confirm = await _confirmDelete(context, preset);
+    if (!confirm) {
+      return;
+    }
+    final deleted = await controller.deletePreset(preset.id);
+    if (!context.mounted || !deleted) {
+      return;
+    }
+    _showSnackBar(context, context.tr('filters_preset_deleted'));
+  }
+
+  Future<String?> _promptPresetName(BuildContext context) {
+    final textController = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(dialogContext.tr('filters_save_preset')),
+          content: TextField(
+            controller: textController,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: dialogContext.tr('filters_preset_name_label'),
+              hintText: dialogContext.tr('filters_preset_name_hint'),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(dialogContext.tr('filters_preset_cancel')),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(textController.text.trim());
+              },
+              child: Text(dialogContext.tr('filters_preset_create')),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _confirmDelete(
+    BuildContext context,
+    CatalogFilterPreset preset,
+  ) async {
+    return showDialog<bool>(
+          context: context,
+          builder: (dialogContext) {
+            return AlertDialog(
+              title: Text(dialogContext.tr('filters_preset_delete_confirm_title')),
+              content: Text(dialogContext.tr('filters_preset_delete_confirm_message')),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: Text(dialogContext.tr('filters_preset_delete_confirm_cancel')),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                  child: Text(dialogContext.tr('filters_preset_delete_confirm_confirm')),
+                ),
+              ],
+            );
+          },
+        ).then((value) => value ?? false);
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+}
+
+class _SortingCenter extends StatelessWidget {
+  const _SortingCenter({required this.controller});
+
+  final CatalogController controller;
+
+  static const List<CatalogSortOption> _options = <CatalogSortOption>[
+    CatalogSortOption.newest,
+    CatalogSortOption.priceLowToHigh,
+    CatalogSortOption.priceHighToLow,
+    CatalogSortOption.kcalLowToHigh,
+    CatalogSortOption.kcalHighToLow,
+    CatalogSortOption.bestSellers,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final hintColor = theme.colorScheme.onSurfaceVariant.withOpacity(0.72);
+    return ValueListenableBuilder<CatalogSortOption>(
+      valueListenable: controller.sortOption,
+      builder: (context, selected, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.tr('sorting_center_title'),
+              style: theme.textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _options.map((option) {
+                final isSelected = option == selected;
+                return ChoiceChip(
+                  label: Text(_labelForOption(context, option)),
+                  selected: isSelected,
+                  showCheckmark: false,
+                  onSelected: (value) {
+                    if (value) {
+                      controller.updateSortOption(option);
+                    }
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              context.tr('sorting_center_hint'),
+              style: theme.textTheme.bodySmall?.copyWith(color: hintColor),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _labelForOption(BuildContext context, CatalogSortOption option) {
+    switch (option) {
+      case CatalogSortOption.newest:
+        return context.tr('sorting_newest');
+      case CatalogSortOption.priceLowToHigh:
+        return context.tr('sorting_price_low_high');
+      case CatalogSortOption.priceHighToLow:
+        return context.tr('sorting_price_high_low');
+      case CatalogSortOption.kcalLowToHigh:
+        return context.tr('sorting_kcal_low_high');
+      case CatalogSortOption.kcalHighToLow:
+        return context.tr('sorting_kcal_high_low');
+      case CatalogSortOption.bestSellers:
+        return context.tr('sorting_best_sellers');
+    }
+  }
+}
+
+class _PresetTile extends StatelessWidget {
+  const _PresetTile({
+    required this.preset,
+    required this.onApply,
+    required this.onDelete,
+  });
+
+  final CatalogFilterPreset preset;
+  final VoidCallback onApply;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final filters = preset.filters;
+    final price = '\$${filters.priceRange.start.toStringAsFixed(0)} – '
+        '\$${filters.priceRange.end.toStringAsFixed(0)}';
+    final weight = '${filters.weightRange.start.toStringAsFixed(0)} g – '
+        '${filters.weightRange.end.toStringAsFixed(0)} g';
+    final kcal = '${filters.kcalRange.start.toStringAsFixed(0)} kcal – '
+        '${filters.kcalRange.end.toStringAsFixed(0)} kcal';
+    final tags = filters.selectedTags;
+    final tagLabel = tags.isEmpty
+        ? context.tr('filters_tags_any')
+        : tags.join(', ');
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        title: Text(preset.name),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${context.tr('filters_price')}: $price'),
+              Text('${context.tr('filters_weight')}: $weight'),
+              Text('${context.tr('filters_kcal')}: $kcal'),
+              Text('${context.tr('filters_tags')}: $tagLabel'),
+            ],
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: onApply,
+              icon: const Icon(Icons.play_arrow_rounded),
+              tooltip: context.tr('filters_preset_apply'),
+            ),
+            IconButton(
+              onPressed: onDelete,
+              icon: const Icon(Icons.delete_outline),
+              tooltip: context.tr('filters_preset_delete'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RangeTile extends StatelessWidget {
+  const _RangeTile({
+    required this.title,
+    required this.range,
+    required this.min,
+    required this.max,
+    required this.labels,
+    required this.onChanged,
+  });
+
+  final String title;
+  final RangeValues range;
+  final double min;
+  final double max;
+  final RangeLabels labels;
+  final ValueChanged<RangeValues> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final effectiveMin = min.floorToDouble();
+    final effectiveMax = max.ceilToDouble();
+    final rawSpan = effectiveMax - effectiveMin;
+    final divisions = rawSpan <= 1 ? null : rawSpan.round();
+    return Card(
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleSmall),
+            RangeSlider(
+              values: range,
+              min: effectiveMin,
+              max: effectiveMax == effectiveMin ? effectiveMin + 1 : effectiveMax,
+              divisions: divisions,
+              labels: labels,
+              onChanged: (value) {
+                if (value.start <= value.end) {
+                  onChanged(value);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
