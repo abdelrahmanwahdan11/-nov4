@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../core/theme/theme_tokens.dart';
 import '../../domain/models/food_item.dart';
+import '../controllers/app_controller.dart';
 import '../controllers/tutorial_controller.dart';
 import 'skeleton_loader.dart';
 import 'tutorial_overlay.dart';
@@ -30,146 +32,154 @@ class FoodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final badgeStyle = theme.textTheme.labelSmall?.copyWith(
-      fontWeight: FontWeight.w600,
-      color: theme.colorScheme.onPrimary,
-    );
-    final colorScheme = theme.colorScheme;
+    final appController = AppScope.of(context);
+    return ValueListenableBuilder<ContentDensity>(
+      valueListenable: appController.contentDensity,
+      builder: (context, density, _) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        final badgeStyle = theme.textTheme.labelSmall?.copyWith(
+          fontWeight: FontWeight.w600,
+          color: theme.colorScheme.onPrimary,
+        );
+        final width = sizeVariant == FoodCardSizeVariant.compact ? 160.0 : null;
+        final height = sizeVariant == FoodCardSizeVariant.compact ? 240.0 : null;
+        final radius = ThemeTokens.radiusForDensity(density);
+        final contentPadding = ThemeTokens.cardPaddingForDensity(density);
+        final badgeOffset = ThemeTokens.badgeOffsetForDensity(density);
 
-    final width = sizeVariant == FoodCardSizeVariant.compact ? 160.0 : null;
-    final height = sizeVariant == FoodCardSizeVariant.compact ? 240.0 : null;
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
-          width: width,
-          height: height,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
+        return Card(
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+          child: InkWell(
+            onTap: onTap,
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AspectRatio(
-                    aspectRatio: 4 / 3,
-                    child: Hero(
-                      tag: 'food_${item.id}',
-                      child: Image.network(
-                        item.imageUrl,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) {
-                            return child;
-                          }
-                          return const SkeletonLoader(
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: colorScheme.surfaceVariant,
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.image_not_supported,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Wrap(
-                      spacing: 8,
-                      children: [
-                        if (item.isNew)
-                          _Badge(
-                            label: 'New',
-                            background: colorScheme.primary,
-                            style: badgeStyle,
-                          ),
-                        if (item.isVegan)
-                          _Badge(
-                            label: 'Vegan',
-                            background: colorScheme.tertiary,
-                            style: badgeStyle,
-                          ),
-                        if (item.isLowCalorie)
-                          _Badge(
-                            label: 'Low kcal',
-                            background: colorScheme.secondary,
-                            style: badgeStyle,
-                          ),
-                      ],
-                    ),
-                  ),
-                  if (onToggleFavorite != null)
-                    PositionedDirectional(
-                      top: 12,
-                      end: 12,
-                      child: Material(
-                        color: colorScheme.surface.withOpacity(0.85),
-                        shape: const CircleBorder(),
-                        child: IconButton(
-                          onPressed: onToggleFavorite,
-                          tooltip: favoriteTooltip,
-                          icon: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: isFavorite ? colorScheme.error : colorScheme.onSurface,
+                  Stack(
+                    children: [
+                      AspectRatio(
+                        aspectRatio: 4 / 3,
+                        child: Hero(
+                          tag: 'food_${item.id}',
+                          child: Image.network(
+                            item.imageUrl,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              }
+                              return SkeletonLoader(
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(radius)),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: colorScheme.surfaceVariant,
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.name,
-                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      Positioned(
+                        top: badgeOffset,
+                        left: badgeOffset,
+                        child: Wrap(
+                          spacing: 8,
+                          children: [
+                            if (item.isNew)
+                              _Badge(
+                                label: 'New',
+                                background: colorScheme.primary,
+                                style: badgeStyle,
+                              ),
+                            if (item.isVegan)
+                              _Badge(
+                                label: 'Vegan',
+                                background: colorScheme.tertiary,
+                                style: badgeStyle,
+                              ),
+                            if (item.isLowCalorie)
+                              _Badge(
+                                label: 'Low kcal',
+                                background: colorScheme.secondary,
+                                style: badgeStyle,
+                              ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        item.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
-                      ),
-                      const Spacer(),
-                      Row(
-                        children: [
-                          Text(
-                            '\\$${item.price.toStringAsFixed(2)}',
-                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      if (onToggleFavorite != null)
+                        PositionedDirectional(
+                          top: badgeOffset,
+                          end: badgeOffset,
+                          child: Material(
+                            color: colorScheme.surface.withOpacity(0.85),
+                            shape: const CircleBorder(),
+                            child: IconButton(
+                              onPressed: onToggleFavorite,
+                              tooltip: favoriteTooltip,
+                              icon: Icon(
+                                isFavorite ? Icons.favorite : Icons.favorite_border,
+                                color: isFavorite ? colorScheme.error : colorScheme.onSurface,
+                              ),
+                            ),
                           ),
-                          const Spacer(),
-                          _buildAddButton(),
-                        ],
-                      ),
+                        ),
                     ],
                   ),
-                ),
+                  Expanded(
+                    child: Padding(
+                      padding: contentPadding,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.name,
+                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: density == ContentDensity.compact ? 2 : 4),
+                          Text(
+                            item.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                          ),
+                          const Spacer(),
+                          Row(
+                            children: [
+                              Text(
+                                '\\$${item.price.toStringAsFixed(2)}',
+                                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const Spacer(),
+                              _buildAddButton(),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 380.ms, curve: Curves.easeOut)
-        .moveY(begin: 30, end: 0, curve: Curves.easeOut);
-}
+        )
+            .animate()
+            .fadeIn(duration: 380.ms, curve: Curves.easeOut)
+            .moveY(begin: 30, end: 0, curve: Curves.easeOut);
+      },
+    );
+  }
 
   Widget _buildAddButton() {
     Widget button = ElevatedButton(
@@ -215,32 +225,40 @@ class FoodCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          SkeletonLoader(
-            height: 160,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    final appController = AppScope.of(context);
+    return ValueListenableBuilder<ContentDensity>(
+      valueListenable: appController.contentDensity,
+      builder: (context, density, _) {
+        final radius = ThemeTokens.radiusForDensity(density);
+        final padding = ThemeTokens.cardPaddingForDensity(density);
+        return Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SkeletonLoader(
+                height: 160,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(radius)),
+              ),
+              Padding(
+                padding: padding,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SkeletonLoader(width: 160, height: 20),
+                    SizedBox(height: density == ContentDensity.compact ? 8 : 12),
+                    const SkeletonLoader(width: 220, height: 16),
+                    SizedBox(height: density == ContentDensity.compact ? 6 : 8),
+                    const SkeletonLoader(width: 180, height: 16),
+                    SizedBox(height: density == ContentDensity.compact ? 14 : 20),
+                    const SkeletonLoader(width: 120, height: 24),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SkeletonLoader(width: 160, height: 20),
-                SizedBox(height: 12),
-                SkeletonLoader(width: 220, height: 16),
-                SizedBox(height: 8),
-                SkeletonLoader(width: 180, height: 16),
-                SizedBox(height: 20),
-                SkeletonLoader(width: 120, height: 24),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

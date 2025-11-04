@@ -9,8 +9,13 @@ class AppTheme {
   static ThemeData buildTheme(
     Brightness brightness, {
     required Color primarySeed,
+    required ContentDensity density,
   }) {
-    final base = ThemeTokens.tokensToTheme(brightness, seed: primarySeed);
+    final base = ThemeTokens.tokensToTheme(
+      brightness,
+      seed: primarySeed,
+      density: density,
+    );
     final textTheme = GoogleFonts.plusJakartaSansTextTheme(base.textTheme);
     return base.copyWith(
       textTheme: textTheme,

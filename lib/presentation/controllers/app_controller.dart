@@ -18,6 +18,8 @@ class AppController extends ChangeNotifier {
   static const _guestKey = 'guest_mode';
   static const _seenOnboardingKey = 'seen_onboarding';
   static const _connectionKey = 'connection_override';
+  static const _catalogLayoutKey = 'catalog_layout';
+  static const _contentDensityKey = 'content_density';
 
   ThemeMode _themeMode = ThemeMode.system;
   Locale? _locale;
@@ -29,6 +31,9 @@ class AppController extends ChangeNotifier {
   Completer<void>? _initCompleter;
   final ValueNotifier<ConnectionOverride> connectionOverride =
       ValueNotifier<ConnectionOverride>(ConnectionOverride.normal);
+  final ValueNotifier<bool> catalogGridMode = ValueNotifier<bool>(true);
+  final ValueNotifier<ContentDensity> contentDensity =
+      ValueNotifier<ContentDensity>(ContentDensity.comfortable);
 
   ThemeMode get themeMode => _themeMode;
   Locale? get locale => _locale;
@@ -82,6 +87,14 @@ class AppController extends ChangeNotifier {
       'error' => ConnectionOverride.error,
       _ => ConnectionOverride.normal,
     };
+
+    final layoutValue = prefs.getString(_catalogLayoutKey);
+    catalogGridMode.value = layoutValue != 'list';
+
+    final densityValue = prefs.getString(_contentDensityKey);
+    contentDensity.value = densityValue == 'compact'
+        ? ContentDensity.compact
+        : ContentDensity.comfortable;
 
     _initCompleter?.complete();
     notifyListeners();
@@ -149,9 +162,26 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setCatalogGridMode(bool isGrid) async {
+    catalogGridMode.value = isGrid;
+    await _prefs?.setString(_catalogLayoutKey, isGrid ? 'grid' : 'list');
+    notifyListeners();
+  }
+
+  Future<void> setContentDensity(ContentDensity density) async {
+    contentDensity.value = density;
+    await _prefs?.setString(
+      _contentDensityKey,
+      density == ContentDensity.compact ? 'compact' : 'comfortable',
+    );
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     connectionOverride.dispose();
+    catalogGridMode.dispose();
+    contentDensity.dispose();
     super.dispose();
   }
 }

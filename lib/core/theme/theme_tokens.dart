@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+enum ContentDensity { comfortable, compact }
+
 class ThemeTokens {
   const ThemeTokens._();
 
@@ -21,19 +23,23 @@ class ThemeTokens {
   static const _darkPillBg = Color(0xFFFFFFFF);
   static const _darkPillFg = Color(0xFF000000);
 
-  static const double cornerRadius = 24;
+  static const double cornerRadiusComfortable = 24;
+  static const double cornerRadiusCompact = 16;
 
   static const String fontFamily = 'PlusJakartaSans';
 
   static ThemeData tokensToTheme(
     Brightness brightness, {
     required Color seed,
+    required ContentDensity density,
   }) {
     final isLight = brightness == Brightness.light;
     final background = isLight ? _lightBackground : _darkBackground;
     final surface = isLight ? _lightSurface : _darkSurface;
     final textPrimary = isLight ? _lightTextPrimary : _darkTextPrimary;
     final textSecondary = isLight ? _lightTextSecondary : _darkTextSecondary;
+    final radius = radiusForDensity(density);
+    final buttonPadding = buttonPaddingForDensity(density);
 
     final colorScheme = ColorScheme.fromSeed(
       seedColor: seed,
@@ -58,7 +64,7 @@ class ThemeTokens {
         color: surface,
         surfaceTintColor: colorScheme.surfaceTint,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(cornerRadius),
+          borderRadius: BorderRadius.circular(radius),
         ),
       ),
       chipTheme: ChipThemeData(
@@ -73,9 +79,9 @@ class ThemeTokens {
           foregroundColor: isLight ? _lightPillFg : _darkPillFg,
           backgroundColor: isLight ? _lightPillBg : _darkPillBg,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(cornerRadius),
+            borderRadius: BorderRadius.circular(radius),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: buttonPadding,
           textStyle: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
       ),
@@ -87,5 +93,41 @@ class ThemeTokens {
         ),
       ),
     );
+  }
+
+  static double radiusForDensity(ContentDensity density) {
+    return density == ContentDensity.compact
+        ? cornerRadiusCompact
+        : cornerRadiusComfortable;
+  }
+
+  static EdgeInsets buttonPaddingForDensity(ContentDensity density) {
+    return density == ContentDensity.compact
+        ? const EdgeInsets.symmetric(horizontal: 20, vertical: 12)
+        : const EdgeInsets.symmetric(horizontal: 24, vertical: 16);
+  }
+
+  static EdgeInsets cardPaddingForDensity(ContentDensity density) {
+    return density == ContentDensity.compact
+        ? const EdgeInsets.fromLTRB(12, 10, 12, 10)
+        : const EdgeInsets.fromLTRB(16, 12, 16, 12);
+  }
+
+  static double badgeOffsetForDensity(ContentDensity density) {
+    return density == ContentDensity.compact ? 8 : 12;
+  }
+
+  static double gridSpacingForDensity(ContentDensity density) {
+    return density == ContentDensity.compact ? 12 : 16;
+  }
+
+  static double listSpacingForDensity(ContentDensity density) {
+    return density == ContentDensity.compact ? 12 : 16;
+  }
+
+  static EdgeInsets quickActionPaddingForDensity(ContentDensity density) {
+    return density == ContentDensity.compact
+        ? const EdgeInsets.symmetric(horizontal: 16)
+        : const EdgeInsets.symmetric(horizontal: 24);
   }
 }

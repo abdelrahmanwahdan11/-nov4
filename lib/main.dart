@@ -136,6 +136,8 @@ class GreenBiteApp extends StatelessWidget {
             controller: CatalogController(
               dataSource: foodDataSource,
               connectionOverride: appController.connectionOverride,
+              layoutMode: appController.catalogGridMode,
+              onLayoutModeChanged: appController.setCatalogGridMode,
             ),
           ),
           settings: settings,
@@ -192,10 +194,12 @@ class GreenBiteApp extends StatelessWidget {
                     theme: AppTheme.buildTheme(
                       Brightness.light,
                       primarySeed: appController.primarySeed,
+                      density: appController.contentDensity.value,
                     ),
                     darkTheme: AppTheme.buildTheme(
                       Brightness.dark,
                       primarySeed: appController.primarySeed,
+                      density: appController.contentDensity.value,
                     ),
                     locale: locale,
                     supportedLocales: const [Locale('en'), Locale('ar')],

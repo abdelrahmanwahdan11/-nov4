@@ -2,6 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../core/theme/theme_tokens.dart';
+import '../controllers/app_controller.dart';
+
 class ManualFlipCard extends StatefulWidget {
   const ManualFlipCard({
     super.key,
@@ -76,21 +79,28 @@ class _FlipSide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            offset: const Offset(0, 8),
-            blurRadius: 20,
+    final appController = AppScope.of(context);
+    return ValueListenableBuilder<ContentDensity>(
+      valueListenable: appController.contentDensity,
+      builder: (context, density, _) {
+        final radius = ThemeTokens.radiusForDensity(density);
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                offset: const Offset(0, 8),
+                blurRadius: 20,
+              ),
+            ],
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: child,
-      ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: child,
+          ),
+        );
+      },
     );
   }
 }

@@ -12,9 +12,14 @@ class CatalogController extends ChangeNotifier {
   CatalogController({
     required FoodLocalDataSource dataSource,
     ValueListenable<ConnectionOverride>? connectionOverride,
+    ValueNotifier<bool>? layoutMode,
+    Future<void> Function(bool)? onLayoutModeChanged,
   })
       : _dataSource = dataSource,
         _connectionOverride = connectionOverride,
+        _layoutModePersister = onLayoutModeChanged,
+        isGridMode = layoutMode ?? ValueNotifier<bool>(true),
+        _ownsLayoutMode = layoutMode == null,
         items = ValueNotifier<List<FoodItem>>(<FoodItem>[]),
         isLoading = ValueNotifier<bool>(false),
         isRefreshing = ValueNotifier<bool>(false),
@@ -27,7 +32,6 @@ class CatalogController extends ChangeNotifier {
             selectedTags: <String>{},
           ),
         ),
-        isGridMode = ValueNotifier<bool>(true),
         availableTags = ValueNotifier<List<String>>(<String>[]),
         isPaginating = ValueNotifier<bool>(false),
         status = ValueNotifier<ContentStatus>(ContentStatus.idle),
@@ -37,6 +41,7 @@ class CatalogController extends ChangeNotifier {
 
   final FoodLocalDataSource _dataSource;
   final ValueListenable<ConnectionOverride>? _connectionOverride;
+  final Future<void> Function(bool)? _layoutModePersister;
 
   final ValueNotifier<List<FoodItem>> items;
   final ValueNotifier<bool> isLoading;
@@ -44,6 +49,7 @@ class CatalogController extends ChangeNotifier {
   final ValueNotifier<bool> hasMore;
   final ValueNotifier<CatalogFilters> filters;
   final ValueNotifier<bool> isGridMode;
+  final bool _ownsLayoutMode;
   final ValueNotifier<List<String>> availableTags;
   final ValueNotifier<bool> isPaginating;
   final ValueNotifier<ContentStatus> status;
@@ -116,6 +122,10 @@ class CatalogController extends ChangeNotifier {
 
   void toggleGridMode() {
     isGridMode.value = !isGridMode.value;
+    final persist = _layoutModePersister;
+    if (persist != null) {
+      unawaited(persist(isGridMode.value));
+    }
   }
 
   void updatePrice(RangeValues range) {
@@ -261,7 +271,9 @@ class CatalogController extends ChangeNotifier {
     isRefreshing.dispose();
     hasMore.dispose();
     filters.dispose();
-    isGridMode.dispose();
+    if (_ownsLayoutMode) {
+      isGridMode.dispose();
+    }
     availableTags.dispose();
     isPaginating.dispose();
     status.dispose();

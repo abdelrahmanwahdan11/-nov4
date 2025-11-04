@@ -281,7 +281,7 @@ class _MenuPageState extends State<MenuPage> {
                             mainAxisSpacing: 16,
                           ),
                           delegate: SliverChildBuilderDelegate(
-                            (context, index) => const FoodCardSkeleton(),
+                            (context, index) => FoodCardSkeleton(),
                             childCount: crossAxisCount * 2,
                           ),
                         );

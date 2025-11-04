@@ -114,6 +114,63 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 16),
               Text(
+                context.tr('settings_layout_section'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment(
+                    value: true,
+                    icon: const Icon(Icons.grid_view_rounded),
+                    label: Text(context.tr('settings_layout_grid')),
+                  ),
+                  ButtonSegment(
+                    value: false,
+                    icon: const Icon(Icons.view_agenda_outlined),
+                    label: Text(context.tr('settings_layout_list')),
+                  ),
+                ],
+                selected: {controller.catalogGridMode.value},
+                onSelectionChanged: (selection) {
+                  final selected = selection.first;
+                  controller.setCatalogGridMode(selected);
+                },
+              ),
+              const SizedBox(height: 16),
+              Text(
+                context.tr('settings_density_section'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              SegmentedButton<ContentDensity>(
+                segments: [
+                  ButtonSegment(
+                    value: ContentDensity.comfortable,
+                    icon: const Icon(Icons.view_comfy_alt),
+                    label: Text(context.tr('settings_density_comfortable')),
+                  ),
+                  ButtonSegment(
+                    value: ContentDensity.compact,
+                    icon: const Icon(Icons.view_compact_alt),
+                    label: Text(context.tr('settings_density_compact')),
+                  ),
+                ],
+                selected: {controller.contentDensity.value},
+                onSelectionChanged: (selection) {
+                  controller.setContentDensity(selection.first);
+                },
+              ),
+              const SizedBox(height: 8),
+              Text(
+                context.tr('settings_density_hint'),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: 16),
+              Text(
                 context.tr('settings_color_section'),
                 style: Theme.of(context).textTheme.titleMedium,
               ),

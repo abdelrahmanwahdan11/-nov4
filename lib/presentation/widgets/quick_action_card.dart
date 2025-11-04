@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/theme_tokens.dart';
+import '../controllers/app_controller.dart';
+
 class QuickActionCard extends StatelessWidget {
   const QuickActionCard({
     super.key,
@@ -23,35 +26,47 @@ class QuickActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Dismissible(
-        key: ValueKey<String>('quick_action_$id'),
-        direction: DismissDirection.horizontal,
-        confirmDismiss: (direction) async {
-          if (direction == DismissDirection.startToEnd) {
-            onFavorite();
-        } else if (direction == DismissDirection.endToStart) {
-          onAddToCart();
-        }
-        return false;
+    final appController = AppScope.of(context);
+    return ValueListenableBuilder<ContentDensity>(
+      valueListenable: appController.contentDensity,
+      builder: (context, density, _) {
+        final radius = ThemeTokens.radiusForDensity(density);
+        final actionPadding = ThemeTokens.quickActionPaddingForDensity(density);
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: Dismissible(
+            key: ValueKey<String>('quick_action_$id'),
+            direction: DismissDirection.horizontal,
+            confirmDismiss: (direction) async {
+              if (direction == DismissDirection.startToEnd) {
+                onFavorite();
+              } else if (direction == DismissDirection.endToStart) {
+                onAddToCart();
+              }
+              return false;
+            },
+            background: _ActionBackground(
+              alignment: AlignmentDirectional.centerStart,
+              color: isFavorite ? colorScheme.errorContainer : colorScheme.primaryContainer,
+              foreground: isFavorite ? colorScheme.onErrorContainer : colorScheme.onPrimaryContainer,
+              icon: isFavorite ? Icons.favorite : Icons.favorite_border,
+              label: favoriteLabel,
+              radius: radius,
+              padding: actionPadding,
+            ),
+            secondaryBackground: _ActionBackground(
+              alignment: AlignmentDirectional.centerEnd,
+              color: colorScheme.secondaryContainer,
+              foreground: colorScheme.onSecondaryContainer,
+              icon: Icons.add_shopping_cart,
+              label: addLabel,
+              radius: radius,
+              padding: actionPadding,
+            ),
+            child: child,
+          ),
+        );
       },
-      background: _ActionBackground(
-        alignment: AlignmentDirectional.centerStart,
-        color: isFavorite ? colorScheme.errorContainer : colorScheme.primaryContainer,
-        foreground: isFavorite ? colorScheme.onErrorContainer : colorScheme.onPrimaryContainer,
-        icon: isFavorite ? Icons.favorite : Icons.favorite_border,
-        label: favoriteLabel,
-      ),
-      secondaryBackground: _ActionBackground(
-        alignment: AlignmentDirectional.centerEnd,
-        color: colorScheme.secondaryContainer,
-        foreground: colorScheme.onSecondaryContainer,
-        icon: Icons.add_shopping_cart,
-        label: addLabel,
-      ),
-      child: child,
-    ),
     );
   }
 }
@@ -63,6 +78,8 @@ class _ActionBackground extends StatelessWidget {
     required this.foreground,
     required this.icon,
     required this.label,
+    required this.radius,
+    required this.padding,
   });
 
   final AlignmentGeometry alignment;
@@ -70,16 +87,18 @@ class _ActionBackground extends StatelessWidget {
   final Color foreground;
   final IconData icon;
   final String label;
+  final double radius;
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(radius),
       ),
       alignment: alignment,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: padding,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
