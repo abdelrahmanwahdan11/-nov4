@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/theme/theme_tokens.dart';
 
+enum ConnectionOverride { normal, offline, error }
+
 class AppController extends ChangeNotifier {
   AppController();
 
@@ -15,6 +17,7 @@ class AppController extends ChangeNotifier {
   static const _firstRunKey = 'first_run';
   static const _guestKey = 'guest_mode';
   static const _seenOnboardingKey = 'seen_onboarding';
+  static const _connectionKey = 'connection_override';
 
   ThemeMode _themeMode = ThemeMode.system;
   Locale? _locale;
@@ -24,6 +27,8 @@ class AppController extends ChangeNotifier {
   bool _seenOnboarding = false;
   SharedPreferences? _prefs;
   Completer<void>? _initCompleter;
+  final ValueNotifier<ConnectionOverride> connectionOverride =
+      ValueNotifier<ConnectionOverride>(ConnectionOverride.normal);
 
   ThemeMode get themeMode => _themeMode;
   Locale? get locale => _locale;
@@ -71,6 +76,12 @@ class AppController extends ChangeNotifier {
     _firstRun = prefs.getBool(_firstRunKey) ?? true;
     _isGuest = prefs.getBool(_guestKey) ?? false;
     _seenOnboarding = prefs.getBool(_seenOnboardingKey) ?? false;
+    final connectionValue = prefs.getString(_connectionKey);
+    connectionOverride.value = switch (connectionValue) {
+      'offline' => ConnectionOverride.offline,
+      'error' => ConnectionOverride.error,
+      _ => ConnectionOverride.normal,
+    };
 
     _initCompleter?.complete();
     notifyListeners();
@@ -123,6 +134,25 @@ class AppController extends ChangeNotifier {
     _firstRun = true;
     await _prefs?.setBool(_firstRunKey, true);
     notifyListeners();
+  }
+
+  Future<void> setConnectionOverride(ConnectionOverride value) async {
+    connectionOverride.value = value;
+    await _prefs?.setString(
+      _connectionKey,
+      switch (value) {
+        ConnectionOverride.offline => 'offline',
+        ConnectionOverride.error => 'error',
+        ConnectionOverride.normal => 'normal',
+      },
+    );
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    connectionOverride.dispose();
+    super.dispose();
   }
 }
 

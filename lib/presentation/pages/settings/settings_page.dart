@@ -193,6 +193,44 @@ class _SettingsPageState extends State<SettingsPage> {
                   );
                 },
               ),
+              const SizedBox(height: 24),
+              Text(
+                context.tr('settings_connection_section'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              SegmentedButton<ConnectionOverride>(
+                segments: [
+                  ButtonSegment(
+                    value: ConnectionOverride.normal,
+                    icon: const Icon(Icons.wifi),
+                    label: Text(context.tr('settings_connection_online')),
+                  ),
+                  ButtonSegment(
+                    value: ConnectionOverride.offline,
+                    icon: const Icon(Icons.wifi_off),
+                    label: Text(context.tr('settings_connection_offline')),
+                  ),
+                  ButtonSegment(
+                    value: ConnectionOverride.error,
+                    icon: const Icon(Icons.error_outline),
+                    label: Text(context.tr('settings_connection_error')),
+                  ),
+                ],
+                selected: {controller.connectionOverride.value},
+                onSelectionChanged: (selection) {
+                  final selected = selection.first;
+                  controller.setConnectionOverride(selected);
+                },
+              ),
+              const SizedBox(height: 8),
+              Text(
+                context.tr('settings_connection_hint'),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
               if (tutorialController != null) ...[
                 const SizedBox(height: 24),
                 Card(

@@ -109,7 +109,10 @@ class GreenBiteApp extends StatelessWidget {
       case CatalogPage.routeName:
         return MaterialPageRoute<void>(
           builder: (_) => CatalogPage(
-            controller: CatalogController(dataSource: FoodLocalDataSource()),
+            controller: CatalogController(
+              dataSource: FoodLocalDataSource(),
+              connectionOverride: appController.connectionOverride,
+            ),
           ),
           settings: settings,
         );

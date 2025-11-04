@@ -1,9 +1,13 @@
 import 'dart:async';
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../data/local/food_local_data_source.dart';
 import '../../domain/models/food_item.dart';
+import 'app_controller.dart';
+import 'content_status.dart';
 
 class SearchResult {
   const SearchResult({
@@ -18,14 +22,24 @@ class SearchResult {
 }
 
 class SearchController {
-  SearchController({required FoodLocalDataSource dataSource})
-      : _dataSource = dataSource,
+  SearchController({
+    required FoodLocalDataSource dataSource,
+    ValueListenable<ConnectionOverride>? connectionOverride,
+  })  : _dataSource = dataSource,
+        _connectionOverride = connectionOverride,
         query = ValueNotifier<String>(''),
-        isLoading = ValueNotifier<bool>(false);
+        isLoading = ValueNotifier<bool>(false),
+        status = ValueNotifier<ContentStatus>(ContentStatus.idle),
+        errorKey = ValueNotifier<String?>(null) {
+    _connectionOverride?.addListener(_handleConnectionChange);
+  }
 
   final FoodLocalDataSource _dataSource;
+  final ValueListenable<ConnectionOverride>? _connectionOverride;
   final ValueNotifier<String> query;
   final ValueNotifier<bool> isLoading;
+  final ValueNotifier<ContentStatus> status;
+  final ValueNotifier<String?> errorKey;
   final StreamController<List<SearchResult>> _resultsController =
       StreamController<List<SearchResult>>.broadcast();
 
@@ -34,25 +48,42 @@ class SearchController {
   List<FoodItem> _items = <FoodItem>[];
   bool _initialized = false;
 
-  Future<void> initialize() async {
-    if (_initialized) {
+  Future<void> initialize({bool force = false}) async {
+    if (_initialized && !force) {
+      return;
+    }
+    final connection = _connectionOverride?.value ?? ConnectionOverride.normal;
+    if (connection != ConnectionOverride.normal) {
+      _handleConnectionChange();
       return;
     }
     isLoading.value = true;
-    _items = await _dataSource.fetchAll();
-    isLoading.value = false;
-    _initialized = true;
-    final currentQuery = query.value.trim();
-    if (currentQuery.isNotEmpty) {
-      search(currentQuery);
-    } else {
-      _resultsController.add(<SearchResult>[]);
+    status.value = ContentStatus.loading;
+    errorKey.value = null;
+    try {
+      _items = await _dataSource.fetchAll();
+      _initialized = true;
+      final currentQuery = query.value.trim();
+      if (currentQuery.isNotEmpty) {
+        search(currentQuery);
+      } else {
+        _resultsController.add(<SearchResult>[]);
+      }
+      status.value = ContentStatus.success;
+    } catch (_) {
+      status.value = ContentStatus.error;
+      errorKey.value = 'state_error_message';
+    } finally {
+      isLoading.value = false;
     }
   }
 
   void search(String rawQuery) {
     final trimmed = rawQuery.trim();
     query.value = rawQuery;
+    if (status.value == ContentStatus.offline || status.value == ContentStatus.error) {
+      return;
+    }
     if (trimmed.isEmpty) {
       _resultsController.add(<SearchResult>[]);
       return;
@@ -107,5 +138,28 @@ class SearchController {
   void dispose() {
     query.dispose();
     isLoading.dispose();
+    status.dispose();
+    errorKey.dispose();
+    _connectionOverride?.removeListener(_handleConnectionChange);
   }
+
+  void _handleConnectionChange() {
+    final connection = _connectionOverride?.value ?? ConnectionOverride.normal;
+    if (connection == ConnectionOverride.normal) {
+      if (!_initialized) {
+        unawaited(initialize(force: true));
+      } else {
+        status.value = ContentStatus.success;
+      }
+      return;
+    }
+    isLoading.value = false;
+    status.value = connection == ConnectionOverride.offline
+        ? ContentStatus.offline
+        : ContentStatus.error;
+    errorKey.value =
+        connection == ConnectionOverride.error ? 'state_error_message' : null;
+  }
+
+  Future<void> retry() => initialize(force: true);
 }

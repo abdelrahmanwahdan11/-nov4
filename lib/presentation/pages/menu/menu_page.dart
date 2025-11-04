@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/locale/localization_extension.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../data/local/food_local_data_source.dart';
 import '../../../domain/models/food_item.dart';
+import '../../controllers/app_controller.dart';
 import '../../controllers/catalog_controller.dart';
+import '../../controllers/content_status.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/tutorial_controller.dart';
+import '../../widgets/content_state_view.dart';
 import '../../widgets/food_card.dart';
 import '../catalog/catalog_page.dart';
 import '../item/item_details_page.dart';
@@ -66,21 +70,16 @@ class _CompareCarsHighlight extends StatelessWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
-  late final CatalogController _controller;
+  CatalogController? _controller;
   final ValueNotifier<String?> _selectedTag = ValueNotifier<String?>(null);
   CartController? _cartController;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = CatalogController(dataSource: FoodLocalDataSource());
-    _controller.loadInitial();
-  }
+  CatalogController get _catalogController => _controller!;
 
   @override
   void dispose() {
     _selectedTag.dispose();
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -88,6 +87,11 @@ class _MenuPageState extends State<MenuPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _cartController = CartScope.of(context);
+    _controller ??= CatalogController(
+      dataSource: FoodLocalDataSource(),
+      connectionOverride: AppScope.of(context).connectionOverride,
+    )
+      ..loadInitial();
   }
 
   void _openCatalog() {
@@ -119,14 +123,23 @@ class _MenuPageState extends State<MenuPage> {
       end: Directionality.of(context) == TextDirection.rtl ? 16 : 0,
     );
 
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await _controller.refresh();
-        },
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          slivers: [
+    final controller = _controller;
+    if (controller == null) {
+      return const SizedBox.shrink();
+    }
+    final catalog = controller;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final padding = ResponsiveBreakpoints.pagePadding(constraints.maxWidth);
+        return Scaffold(
+          body: RefreshIndicator(
+            onRefresh: () async {
+              await catalog.refresh();
+            },
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              slivers: [
             SliverAppBar(
               pinned: true,
               centerTitle: false,
@@ -143,7 +156,7 @@ class _MenuPageState extends State<MenuPage> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 16, bottom: 8),
                 child: ValueListenableBuilder<List<String>>(
-                  valueListenable: _controller.availableTags,
+                  valueListenable: catalog.availableTags,
                   builder: (context, tags, _) {
                     if (tags.isEmpty) {
                       return const SizedBox.shrink();
@@ -184,76 +197,119 @@ class _MenuPageState extends State<MenuPage> {
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: padding.add(const EdgeInsets.symmetric(vertical: 8)),
                 child: _CompareCarsHighlight(onPressed: () {
                   Navigator.of(context).pushNamed(CompareCarsPage.routeName);
                 }),
               ),
             ),
-            ValueListenableBuilder<bool>(
-              valueListenable: _controller.isLoading,
-              builder: (context, isLoading, _) {
-                if (isLoading) {
+            ValueListenableBuilder<ContentStatus>(
+              valueListenable: catalog.status,
+              builder: (context, state, _) {
+                if (state == ContentStatus.loading && catalog.items.value.isEmpty) {
                   return SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    sliver: SliverGrid(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.72,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => const FoodCardSkeleton(),
-                        childCount: 6,
+                    padding: padding.add(const EdgeInsets.symmetric(vertical: 16)),
+                    sliver: SliverLayoutBuilder(
+                      builder: (context, constraints) {
+                        final crossAxisCount = ResponsiveBreakpoints.columnsForWidth(
+                          constraints.crossAxisExtent,
+                          min: 1,
+                          max: 4,
+                        );
+                        final aspectRatio =
+                            ResponsiveBreakpoints.foodCardAspectRatio(constraints.crossAxisExtent);
+                        return SliverGrid(
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            childAspectRatio: aspectRatio,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) => const FoodCardSkeleton(),
+                            childCount: crossAxisCount * 2,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+                if (state == ContentStatus.offline || state == ContentStatus.error) {
+                  final messageKey = state == ContentStatus.offline
+                      ? 'state_offline_message'
+                      : catalog.errorKey.value ?? 'state_error_message';
+                  final titleKey = state == ContentStatus.offline
+                      ? 'state_offline_title'
+                      : 'state_error_title';
+                  return SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: ContentStateView(
+                      icon: state == ContentStatus.offline ? Icons.wifi_off : Icons.warning_rounded,
+                      title: context.tr(titleKey),
+                      message: context.tr(messageKey),
+                      primaryAction: FilledButton(
+                        onPressed: () => catalog.retry(),
+                        child: Text(context.tr('state_try_again')),
                       ),
                     ),
                   );
                 }
                 return ValueListenableBuilder<List<FoodItem>>(
-                  valueListenable: _controller.items,
+                  valueListenable: catalog.items,
                   builder: (context, items, _) {
-                    if (items.isEmpty) {
-                      return SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: Center(
-                          child: Text(
-                            context.tr('menu_empty'),
-                            style: theme.textTheme.titleMedium,
-                          ),
-                        ),
-                      );
-                    }
                     return ValueListenableBuilder<String?>(
                       valueListenable: _selectedTag,
                       builder: (context, selected, __) {
                         final filtered = selected == null
                             ? items
                             : items.where((item) => item.tags.contains(selected)).toList();
+                        if (filtered.isEmpty) {
+                          return SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: ContentStateView(
+                              icon: Icons.sentiment_dissatisfied_outlined,
+                              title: context.tr('menu_empty'),
+                              message: context.tr('state_empty_menu_message'),
+                              primaryAction: TextButton(
+                                onPressed: () => _selectedTag.value = null,
+                                child: Text(context.tr('state_reset_filters')),
+                              ),
+                            ),
+                          );
+                        }
                         return SliverPadding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          sliver: SliverGrid(
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              childAspectRatio: 0.72,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                            ),
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                final item = filtered[index];
-                                final tutorialTarget =
-                                    index == 0 ? TutorialTarget.addToCart : null;
-                                return FoodCard(
-                                  item: item,
-                                  onTap: () => _openDetails(item),
-                                  onAdd: () => _addToCart(item),
-                                  sizeVariant: FoodCardSizeVariant.compact,
-                                  tutorialTarget: tutorialTarget,
-                                );
-                              },
-                              childCount: filtered.length,
-                            ),
+                          padding: padding.add(const EdgeInsets.symmetric(vertical: 16)),
+                          sliver: SliverLayoutBuilder(
+                            builder: (context, constraints) {
+                              final crossAxisCount = ResponsiveBreakpoints.columnsForWidth(
+                                constraints.crossAxisExtent,
+                                min: 1,
+                                max: 4,
+                              );
+                              final aspectRatio = ResponsiveBreakpoints
+                                  .foodCardAspectRatio(constraints.crossAxisExtent);
+                              return SliverGrid(
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: crossAxisCount,
+                                  childAspectRatio: aspectRatio,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                ),
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final item = filtered[index];
+                                    final tutorialTarget = index == 0 ? TutorialTarget.addToCart : null;
+                                    return FoodCard(
+                                      item: item,
+                                      onTap: () => _openDetails(item),
+                                      onAdd: () => _addToCart(item),
+                                      tutorialTarget: tutorialTarget,
+                                    );
+                                  },
+                                  childCount: filtered.length,
+                                ),
+                              );
+                            },
                           ),
                         );
                       },
@@ -263,9 +319,9 @@ class _MenuPageState extends State<MenuPage> {
               },
             ),
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: padding.add(const EdgeInsets.symmetric(vertical: 16)),
               sliver: ValueListenableBuilder<bool>(
-                valueListenable: _controller.hasMore,
+                valueListenable: catalog.hasMore,
                 builder: (context, hasMore, _) {
                   if (!hasMore) {
                     return SliverToBoxAdapter(
@@ -280,7 +336,7 @@ class _MenuPageState extends State<MenuPage> {
                   }
                   return SliverToBoxAdapter(
                     child: ValueListenableBuilder<bool>(
-                      valueListenable: _controller.isPaginating,
+                      valueListenable: catalog.isPaginating,
                       builder: (context, paginating, __) {
                         if (paginating) {
                           return Padding(
@@ -290,7 +346,7 @@ class _MenuPageState extends State<MenuPage> {
                         }
                         return Center(
                           child: ElevatedButton.icon(
-                            onPressed: _controller.loadMore,
+                            onPressed: catalog.loadMore,
                             icon: const Icon(Icons.more_horiz),
                             label: Text(context.tr('load_more')),
                           )
@@ -305,7 +361,8 @@ class _MenuPageState extends State<MenuPage> {
             ),
           ],
         ),
-      ),
+      );
+      },
     );
   }
 }

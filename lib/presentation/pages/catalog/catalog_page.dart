@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/locale/localization_extension.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../domain/models/food_item.dart';
 import '../../controllers/catalog_controller.dart';
+import '../../controllers/content_status.dart';
+import '../../widgets/content_state_view.dart';
 import '../../widgets/food_card.dart';
 import '../item/item_details_page.dart';
 
@@ -57,28 +60,31 @@ class _CatalogPageState extends State<CatalogPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr('catalog_title')),
-        actions: [
-          ValueListenableBuilder<bool>(
-            valueListenable: _controller.isGridMode,
-            builder: (context, isGrid, _) {
-              return IconButton(
-                onPressed: _controller.toggleGridMode,
-                icon: Icon(isGrid ? Icons.view_agenda_outlined : Icons.grid_view_rounded),
-                tooltip: isGrid ? context.tr('list_view') : context.tr('grid_view'),
-              );
-            },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final padding = ResponsiveBreakpoints.pagePadding(constraints.maxWidth);
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(context.tr('catalog_title')),
+            actions: [
+              ValueListenableBuilder<bool>(
+                valueListenable: _controller.isGridMode,
+                builder: (context, isGrid, _) {
+                  return IconButton(
+                    onPressed: _controller.toggleGridMode,
+                    icon: Icon(isGrid ? Icons.view_agenda_outlined : Icons.grid_view_rounded),
+                    tooltip: isGrid ? context.tr('list_view') : context.tr('grid_view'),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _onRefresh,
-        child: ValueListenableBuilder<bool>(
-          valueListenable: _controller.isLoading,
-          builder: (context, isLoading, _) {
-            return NotificationListener<ScrollNotification>(
+          body: RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: ValueListenableBuilder<ContentStatus>(
+              valueListenable: _controller.status,
+              builder: (context, state, _) {
+                return NotificationListener<ScrollNotification>(
               onNotification: (notification) {
                 if (notification is OverscrollNotification &&
                     notification.overscroll > 0 &&
@@ -92,43 +98,68 @@ class _CatalogPageState extends State<CatalogPage> {
                 controller: _scrollController,
                 slivers: [
                   SliverToBoxAdapter(child: _FiltersPanel(controller: _controller)),
-                  if (isLoading)
+                  if (state == ContentStatus.loading && _controller.items.value.isEmpty)
                     SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.75,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
+                      padding: padding.add(const EdgeInsets.symmetric(vertical: 12)),
+                      sliver: SliverLayoutBuilder(
+                        builder: (context, constraints) {
+                          final crossAxisCount = ResponsiveBreakpoints.columnsForWidth(
+                            constraints.crossAxisExtent,
+                            min: 1,
+                            max: 5,
+                          );
+                          final aspectRatio = ResponsiveBreakpoints
+                              .foodCardAspectRatio(constraints.crossAxisExtent);
+                          return SliverGrid(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: crossAxisCount,
+                              childAspectRatio: aspectRatio,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) => const FoodCardSkeleton(),
+                              childCount: crossAxisCount * 2,
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  else if (state == ContentStatus.offline || state == ContentStatus.error)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: ContentStateView(
+                        icon: state == ContentStatus.offline ? Icons.wifi_off : Icons.warning_rounded,
+                        title: context.tr(
+                          state == ContentStatus.offline ? 'state_offline_title' : 'state_error_title',
                         ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) => const FoodCardSkeleton(),
-                          childCount: 8,
+                        message: context.tr(
+                          state == ContentStatus.offline
+                              ? 'state_offline_message'
+                              : _controller.errorKey.value ?? 'state_error_message',
+                        ),
+                        primaryAction: FilledButton(
+                          onPressed: () => _controller.retry(),
+                          child: Text(context.tr('state_try_again')),
                         ),
                       ),
                     )
                   else
                     SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: padding.add(const EdgeInsets.symmetric(vertical: 12)),
                       sliver: ValueListenableBuilder<List<FoodItem>>(
                         valueListenable: _controller.items,
                         builder: (context, items, _) {
                           if (items.isEmpty) {
                             return SliverFillRemaining(
                               hasScrollBody: false,
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.search_off, size: 40),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      context.tr('catalog_empty'),
-                                      style: theme.textTheme.titleMedium,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                              child: ContentStateView(
+                                icon: Icons.search_off,
+                                title: context.tr('catalog_empty'),
+                                message: context.tr('state_empty_menu_message'),
+                                primaryAction: TextButton(
+                                  onPressed: () => _controller.refresh(),
+                                  child: Text(context.tr('state_try_again')),
                                 ),
                               ),
                             );
@@ -137,52 +168,67 @@ class _CatalogPageState extends State<CatalogPage> {
                             valueListenable: _controller.isGridMode,
                             builder: (context, isGrid, _) {
                               if (isGrid) {
-                                return SliverGrid(
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    childAspectRatio: 0.75,
-                                    crossAxisSpacing: 16,
-                                    mainAxisSpacing: 16,
-                                  ),
-                                  delegate: SliverChildBuilderDelegate(
-                                    (context, index) {
-                                      final item = items[index];
-                                      return FoodCard(
+                                return SliverLayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final crossAxisCount = ResponsiveBreakpoints.columnsForWidth(
+                                      constraints.crossAxisExtent,
+                                      min: 1,
+                                      max: 5,
+                                    );
+                                    final aspectRatio = ResponsiveBreakpoints
+                                        .foodCardAspectRatio(constraints.crossAxisExtent);
+                                    return SliverGrid(
+                                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: crossAxisCount,
+                                        childAspectRatio: aspectRatio,
+                                        crossAxisSpacing: 16,
+                                        mainAxisSpacing: 16,
+                                      ),
+                                      delegate: SliverChildBuilderDelegate(
+                                        (context, index) {
+                                          final item = items[index];
+                                          return FoodCard(
+                                            item: item,
+                                            onTap: () => Navigator.of(context)
+                                                .pushNamed(ItemDetailsPage.routeName, arguments: item),
+                                            onAdd: () {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    '${context.tr('added_to_cart')} ${item.name}',
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                        childCount: items.length,
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                              return SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final item = items[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 16),
+                                      child: FoodCard(
                                         item: item,
                                         onTap: () => Navigator.of(context)
                                             .pushNamed(ItemDetailsPage.routeName, arguments: item),
                                         onAdd: () {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
-                                              content: Text('${context.tr('added_to_cart')} ${item.name}'),
+                                              content: Text(
+                                                '${context.tr('added_to_cart')} ${item.name}',
+                                              ),
                                             ),
                                           );
                                         },
-                                      );
-                                    },
-                                    childCount: items.length,
-                                  ),
-                                );
-                              }
-                              return SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                  final item = items[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    child: FoodCard(
-                                      item: item,
-                                      onTap: () => Navigator.of(context)
-                                          .pushNamed(ItemDetailsPage.routeName, arguments: item),
-                                      onAdd: () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('${context.tr('added_to_cart')} ${item.name}'),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  );
+                                      ),
+                                    );
                                   },
                                   childCount: items.length,
                                 ),

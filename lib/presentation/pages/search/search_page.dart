@@ -1,9 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/locale/localization_extension.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../data/local/food_local_data_source.dart';
 import '../../../domain/models/food_item.dart';
+import '../../controllers/app_controller.dart';
+import '../../controllers/content_status.dart';
 import '../../controllers/search_controller.dart';
+import '../../widgets/content_state_view.dart';
 import '../../controllers/tutorial_controller.dart';
 import '../../widgets/tutorial_overlay.dart';
 import '../item/item_details_page.dart';
@@ -17,25 +23,39 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _controller = TextEditingController();
-  late final SearchController _searchController;
+  SearchController? _searchController;
 
   @override
   void initState() {
     super.initState();
-    _searchController = SearchController(dataSource: FoodLocalDataSource());
-    _searchController.initialize();
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _searchController.dispose();
-    _searchController.disposeAsync();
+    final controller = _searchController;
+    if (controller != null) {
+      controller.dispose();
+      unawaited(controller.disposeAsync());
+    }
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _searchController ??= SearchController(
+      dataSource: FoodLocalDataSource(),
+      connectionOverride: AppScope.of(context).connectionOverride,
+    )
+      ..initialize();
+  }
+
   void _onQueryChanged(String value) {
-    _searchController.search(value);
+    final controller = _searchController;
+    if (controller != null) {
+      controller.search(value);
+    }
   }
 
   void _openDetails(FoodItem item) {
@@ -45,6 +65,10 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final controller = _searchController;
+    if (controller == null) {
+      return const SizedBox.shrink();
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(context.tr('search_title')),
@@ -71,108 +95,147 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
       ),
-      body: ValueListenableBuilder<bool>(
-        valueListenable: _searchController.isLoading,
-        builder: (context, loading, _) {
-          return StreamBuilder<List<SearchResult>>(
-            stream: _searchController.resultsStream,
-            builder: (context, snapshot) {
-              final query = _searchController.query.value.trim();
-              final results = snapshot.data ?? <SearchResult>[];
-              if (loading && query.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (query.isEmpty) {
-                return Center(
-                  child: Text(
-                    context.tr('search_empty'),
-                    style: theme.textTheme.titleMedium,
-                  ),
-                );
-              }
-              if (loading && results.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (results.isEmpty) {
-                return Center(
-                  child: Text(
-                    context.tr('search_no_results'),
-                    style: theme.textTheme.titleMedium,
-                  ),
-                );
-              }
-              return ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: results.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final result = results[index];
-                  final item = result.item;
-                  return ListTile(
-                    onTap: () => _openDetails(item),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    tileColor: theme.colorScheme.surfaceVariant.withOpacity(0.4),
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        item.imageUrl,
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final maxWidth = ResponsiveBreakpoints.constrainedBodyWidth(constraints.maxWidth);
+          return Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              child: ValueListenableBuilder<ContentStatus>(
+                valueListenable: controller.status,
+                builder: (context, status, _) {
+                  if (status == ContentStatus.loading && controller.query.value.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (status == ContentStatus.offline || status == ContentStatus.error) {
+                    final titleKey =
+                        status == ContentStatus.offline ? 'state_offline_title' : 'state_error_title';
+                    final messageKey = status == ContentStatus.offline
+                        ? 'state_offline_message'
+                        : controller.errorKey.value ?? 'state_error_message';
+                    return ContentStateView(
+                      icon: status == ContentStatus.offline ? Icons.wifi_off : Icons.warning_rounded,
+                      title: context.tr(titleKey),
+                      message: context.tr(messageKey),
+                      primaryAction: FilledButton(
+                        onPressed: () => controller.retry(),
+                        child: Text(context.tr('state_try_again')),
                       ),
-                    ),
-                    title: RichText(
-                      text: TextSpan(
-                        style: theme.textTheme.titleMedium,
-                        children: _highlightText(
-                          item.name,
-                          query,
-                          theme.textTheme.titleMedium ??
-                              const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                          theme.colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        RichText(
-                          text: TextSpan(
-                            style: theme.textTheme.bodyMedium
-                                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                            children: _highlightText(
-                              item.description,
-                              query,
-                              theme.textTheme.bodyMedium ?? const TextStyle(),
-                              theme.colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            ...item.tags.take(3).map((tag) => _buildTagChip(tag, query, theme)),
-                            Text(
-                              '${item.kcal} kcal • \\$${item.price.toStringAsFixed(2)}',
-                              style: theme.textTheme.labelMedium,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _formatMatchedFields(result.matchedFields, context),
-                          style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),
-                        ),
-                      ],
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
+                    );
+                  }
+                  return ValueListenableBuilder<bool>(
+                    valueListenable: controller.isLoading,
+                    builder: (context, loading, _) {
+                      return StreamBuilder<List<SearchResult>>(
+                        stream: controller.resultsStream,
+                        builder: (context, snapshot) {
+                          final query = controller.query.value.trim();
+                          final results = snapshot.data ?? <SearchResult>[];
+                          if (query.isEmpty) {
+                            return Center(
+                              child: Text(
+                                context.tr('search_empty'),
+                                style: theme.textTheme.titleMedium,
+                              ),
+                            );
+                          }
+                          if (loading && results.isEmpty) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (results.isEmpty) {
+                            return ContentStateView(
+                              icon: Icons.search_off,
+                              title: context.tr('search_no_results'),
+                              message: context.tr('state_empty_search_message'),
+                              primaryAction: TextButton(
+                                onPressed: () {
+                                  _controller.clear();
+                                  controller.search('');
+                                },
+                                child: Text(context.tr('state_reset_search')),
+                              ),
+                            );
+                          }
+                          return ListView.separated(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: results.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final result = results[index];
+                              final item = result.item;
+                              return ListTile(
+                                onTap: () => _openDetails(item),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                tileColor: theme.colorScheme.surfaceVariant.withOpacity(0.4),
+                                leading: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Image.network(
+                                    item.imageUrl,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                title: RichText(
+                                  text: TextSpan(
+                                    style: theme.textTheme.titleMedium,
+                                    children: _highlightText(
+                                      item.name,
+                                      query,
+                                      theme.textTheme.titleMedium ??
+                                          const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                      theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 4),
+                                    RichText(
+                                      text: TextSpan(
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                        children: _highlightText(
+                                          item.description,
+                                          query,
+                                          theme.textTheme.bodyMedium ?? const TextStyle(),
+                                          theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: [
+                                        ...item.tags.take(3).map((tag) => _buildTagChip(tag, query, theme)),
+                                        Text(
+                                          '${item.kcal} kcal • \\$${item.price.toStringAsFixed(2)}',
+                                          style: theme.textTheme.labelMedium,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _formatMatchedFields(result.matchedFields, context),
+                                      style:
+                                          theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),
+                                    ),
+                                  ],
+                                ),
+                                trailing: const Icon(Icons.chevron_right),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
                   );
                 },
-              );
-            },
+              ),
+            ),
           );
         },
       ),

@@ -1,13 +1,20 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
 import '../../data/local/food_local_data_source.dart';
 import '../../domain/models/food_item.dart';
+import 'app_controller.dart';
+import 'content_status.dart';
 
 class CatalogController extends ChangeNotifier {
-  CatalogController({required FoodLocalDataSource dataSource})
+  CatalogController({
+    required FoodLocalDataSource dataSource,
+    ValueListenable<ConnectionOverride>? connectionOverride,
+  })
       : _dataSource = dataSource,
+        _connectionOverride = connectionOverride,
         items = ValueNotifier<List<FoodItem>>(<FoodItem>[]),
         isLoading = ValueNotifier<bool>(false),
         isRefreshing = ValueNotifier<bool>(false),
@@ -22,9 +29,14 @@ class CatalogController extends ChangeNotifier {
         ),
         isGridMode = ValueNotifier<bool>(true),
         availableTags = ValueNotifier<List<String>>(<String>[]),
-        isPaginating = ValueNotifier<bool>(false);
+        isPaginating = ValueNotifier<bool>(false),
+        status = ValueNotifier<ContentStatus>(ContentStatus.idle),
+        errorKey = ValueNotifier<String?>(null) {
+    _connectionOverride?.addListener(_handleConnectionChange);
+  }
 
   final FoodLocalDataSource _dataSource;
+  final ValueListenable<ConnectionOverride>? _connectionOverride;
 
   final ValueNotifier<List<FoodItem>> items;
   final ValueNotifier<bool> isLoading;
@@ -34,6 +46,8 @@ class CatalogController extends ChangeNotifier {
   final ValueNotifier<bool> isGridMode;
   final ValueNotifier<List<String>> availableTags;
   final ValueNotifier<bool> isPaginating;
+  final ValueNotifier<ContentStatus> status;
+  final ValueNotifier<String?> errorKey;
 
   final int _pageSize = 10;
   List<FoodItem> _allItems = <FoodItem>[];
@@ -48,25 +62,56 @@ class CatalogController extends ChangeNotifier {
   RangeValues get weightBounds => _weightBounds;
   RangeValues get kcalBounds => _kcalBounds;
 
-  Future<void> loadInitial() async {
-    if (items.value.isNotEmpty) {
+  Future<void> loadInitial({bool force = false}) async {
+    if (!force && (items.value.isNotEmpty || status.value == ContentStatus.loading)) {
+      return;
+    }
+    if (force) {
+      _allItems = <FoodItem>[];
+      _filteredItems = <FoodItem>[];
+      _pageIndex = 0;
+      items.value = <FoodItem>[];
+      hasMore.value = false;
+    }
+    final connection = _connectionOverride?.value ?? ConnectionOverride.normal;
+    if (connection != ConnectionOverride.normal) {
+      _handleConnectionChange();
       return;
     }
     isLoading.value = true;
-    final fetched = await _dataSource.fetchAll();
-    _allItems = List<FoodItem>.from(fetched);
-    _buildFilters();
-    _applyFilters(resetPage: true);
-    isLoading.value = false;
+    status.value = ContentStatus.loading;
+    errorKey.value = null;
+    try {
+      final fetched = await _dataSource.fetchAll();
+      _allItems = List<FoodItem>.from(fetched);
+      _buildFilters();
+      _applyFilters(resetPage: true);
+    } catch (_) {
+      status.value = ContentStatus.error;
+      errorKey.value = 'state_error_message';
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> refresh() async {
+    final connection = _connectionOverride?.value ?? ConnectionOverride.normal;
+    if (connection != ConnectionOverride.normal) {
+      _handleConnectionChange();
+      return;
+    }
     isRefreshing.value = true;
-    final refreshed = await _dataSource.refresh();
-    _allItems = List<FoodItem>.from(refreshed);
-    _buildFilters();
-    _applyFilters(resetPage: true);
-    isRefreshing.value = false;
+    try {
+      final refreshed = await _dataSource.refresh();
+      _allItems = List<FoodItem>.from(refreshed);
+      _buildFilters();
+      _applyFilters(resetPage: true);
+    } catch (_) {
+      status.value = ContentStatus.error;
+      errorKey.value = 'state_error_message';
+    } finally {
+      isRefreshing.value = false;
+    }
   }
 
   void toggleGridMode() {
@@ -107,11 +152,42 @@ class CatalogController extends ChangeNotifier {
     if (!hasMore.value || isPaginating.value) {
       return;
     }
+    final connection = _connectionOverride?.value ?? ConnectionOverride.normal;
+    if (connection != ConnectionOverride.normal) {
+      _handleConnectionChange();
+      return;
+    }
     isPaginating.value = true;
     await Future<void>.delayed(const Duration(milliseconds: 260));
     _pageIndex += 1;
     _updatePage();
     isPaginating.value = false;
+  }
+
+  void _handleConnectionChange() {
+    final connection = _connectionOverride?.value ?? ConnectionOverride.normal;
+    if (connection == ConnectionOverride.normal) {
+      if (_allItems.isEmpty) {
+        unawaited(loadInitial(force: true));
+      } else {
+        _applyFilters(resetPage: true);
+      }
+      return;
+    }
+    isLoading.value = false;
+    isRefreshing.value = false;
+    isPaginating.value = false;
+    switch (connection) {
+      case ConnectionOverride.offline:
+        status.value = ContentStatus.offline;
+        break;
+      case ConnectionOverride.error:
+        status.value = ContentStatus.error;
+        errorKey.value = 'state_error_message';
+        break;
+      case ConnectionOverride.normal:
+        break;
+    }
   }
 
   void _buildFilters() {
@@ -170,10 +246,16 @@ class CatalogController extends ChangeNotifier {
     final endIndex = min(_filteredItems.length, (_pageIndex + 1) * _pageSize);
     items.value = _filteredItems.take(endIndex).toList();
     hasMore.value = endIndex < _filteredItems.length;
+    if (status.value != ContentStatus.offline && status.value != ContentStatus.error) {
+      status.value = _filteredItems.isEmpty ? ContentStatus.empty : ContentStatus.success;
+    }
   }
+
+  Future<void> retry() => loadInitial(force: true);
 
   @override
   void dispose() {
+    _connectionOverride?.removeListener(_handleConnectionChange);
     items.dispose();
     isLoading.dispose();
     isRefreshing.dispose();
@@ -182,6 +264,8 @@ class CatalogController extends ChangeNotifier {
     isGridMode.dispose();
     availableTags.dispose();
     isPaginating.dispose();
+    status.dispose();
+    errorKey.dispose();
     super.dispose();
   }
 }
