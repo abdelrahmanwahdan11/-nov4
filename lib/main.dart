@@ -6,14 +6,14 @@ import 'presentation/controllers/app_controller.dart';
 import 'presentation/controllers/auth_controller.dart';
 import 'presentation/controllers/cart_controller.dart';
 import 'presentation/controllers/catalog_controller.dart';
-import 'presentation/controllers/compare_controller.dart';
+import 'presentation/controllers/meal_table_compare_controller.dart';
 import 'presentation/controllers/tutorial_controller.dart';
 import 'presentation/controllers/favorites_controller.dart';
 import 'presentation/controllers/recently_viewed_controller.dart';
 import 'presentation/controllers/meal_planner_controller.dart';
 import 'data/local/cart_local_data_source.dart';
 import 'data/local/food_local_data_source.dart';
-import 'data/local/car_local_data_source.dart';
+import 'data/local/meal_table_local_data_source.dart';
 import 'data/local/catalog_presets_local_data_source.dart';
 import 'data/local/favorites_local_data_source.dart';
 import 'data/local/recently_viewed_local_data_source.dart';
@@ -28,7 +28,7 @@ import 'presentation/pages/item/item_details_page.dart';
 import 'presentation/pages/onboarding/onboarding_page.dart';
 import 'presentation/pages/settings/settings_page.dart';
 import 'presentation/pages/splash/splash_page.dart';
-import 'presentation/pages/compare/compare_cars_page.dart';
+import 'presentation/pages/compare/compare_meal_tables_page.dart';
 import 'presentation/pages/meal_planner/meal_planner_page.dart';
 import 'presentation/widgets/tutorial_overlay.dart';
 
@@ -52,8 +52,8 @@ Future<void> main() async {
     localDataSource: RecentlyViewedLocalDataSource(),
   );
   await recentlyViewedController.initialize();
-  final compareController = CompareController(
-    dataSource: CarLocalDataSource(),
+  final compareController = MealTableCompareController(
+    dataSource: MealTableLocalDataSource(),
   );
   await compareController.load();
   final tutorialController = TutorialController(appController: appController);
@@ -97,7 +97,7 @@ class GreenBiteApp extends StatelessWidget {
   final AppController appController;
   final AuthController authController;
   final CartController cartController;
-  final CompareController compareController;
+  final MealTableCompareController compareController;
   final TutorialController tutorialController;
   final FavoritesController favoritesController;
   final RecentlyViewedController recentlyViewedController;
@@ -175,9 +175,9 @@ class GreenBiteApp extends StatelessWidget {
           builder: (_) => SettingsPage(controller: appController),
           settings: settings,
         );
-      case CompareCarsPage.routeName:
+      case CompareMealTablesPage.routeName:
         return MaterialPageRoute<void>(
-          builder: (_) => const CompareCarsPage(),
+          builder: (_) => const CompareMealTablesPage(),
           settings: settings,
         );
       case MealPlannerPage.routeName:
@@ -207,7 +207,7 @@ class GreenBiteApp extends StatelessWidget {
                 controller: favoritesController,
                 child: RecentlyViewedScope(
                   controller: recentlyViewedController,
-                  child: CompareScope(
+                  child: MealTableCompareScope(
                     controller: compareController,
                     child: TutorialScope(
                       controller: tutorialController,

@@ -20,7 +20,7 @@ import '../../widgets/food_card.dart';
 import '../../widgets/quick_action_card.dart';
 import '../catalog/catalog_page.dart';
 import '../item/item_details_page.dart';
-import '../compare/compare_cars_page.dart';
+import '../compare/compare_meal_tables_page.dart';
 import '../meal_planner/meal_planner_page.dart';
 
 class MenuPage extends StatefulWidget {
@@ -30,8 +30,8 @@ class MenuPage extends StatefulWidget {
   State<MenuPage> createState() => _MenuPageState();
 }
 
-class _CompareCarsHighlight extends StatelessWidget {
-  const _CompareCarsHighlight({required this.onPressed});
+class _CompareMealTablesHighlight extends StatelessWidget {
+  const _CompareMealTablesHighlight({required this.onPressed});
 
   final VoidCallback onPressed;
 
@@ -54,12 +54,12 @@ class _CompareCarsHighlight extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            context.tr('compare_cta_title'),
+            context.tr('compare_tables_cta_title'),
             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
-            context.tr('compare_cta_desc'),
+            context.tr('compare_tables_cta_desc'),
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -68,7 +68,7 @@ class _CompareCarsHighlight extends StatelessWidget {
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
-            child: Text(context.tr('compare_cta_button')),
+            child: Text(context.tr('compare_tables_cta_button')),
           ),
         ],
       ).animate().fadeIn(duration: const Duration(milliseconds: 360)),
@@ -297,8 +297,8 @@ class _MenuPageState extends State<MenuPage> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: padding.add(const EdgeInsets.symmetric(vertical: 8)),
-                child: _CompareCarsHighlight(onPressed: () {
-                  Navigator.of(context).pushNamed(CompareCarsPage.routeName);
+                child: _CompareMealTablesHighlight(onPressed: () {
+                  Navigator.of(context).pushNamed(CompareMealTablesPage.routeName);
                 }),
               ),
             ),
