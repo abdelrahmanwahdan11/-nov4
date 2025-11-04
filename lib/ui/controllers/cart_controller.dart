@@ -37,13 +37,15 @@ class CartController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void applyCoupon(String code) {
-    if (code.trim().toUpperCase() == 'GREEN10') {
-      _discount = subtotal * 0.1;
-    } else {
-      _discount = 0;
+  bool applyCoupon(String code) {
+    final normalized = code.trim().toUpperCase();
+    final newDiscount = normalized == 'GREEN10' && _items.isNotEmpty ? subtotal * 0.1 : 0.0;
+    final changed = newDiscount != _discount;
+    _discount = newDiscount;
+    if (changed) {
+      notifyListeners();
     }
-    notifyListeners();
+    return newDiscount > 0;
   }
 
   void clear() {

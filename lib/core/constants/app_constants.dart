@@ -15,6 +15,10 @@ class AppConstants {
   static const sharedPrefsSlowNetworkKey = 'slowNetwork';
   static const sharedPrefsTutorialHomeKey = 'tutorialHomeShown';
   static const sharedPrefsTutorialCatalogKey = 'tutorialCatalogShown';
+  static const sharedPrefsProfileNameKey = 'profile_name';
+  static const sharedPrefsProfileEmailKey = 'profile_email';
+  static const sharedPrefsProfilePhoneKey = 'profile_phone';
+  static const sharedPrefsProfileAddressesKey = 'profile_addresses';
 
   static const pageSizeFoods = 20;
   static const pageSizeCars = 10;
