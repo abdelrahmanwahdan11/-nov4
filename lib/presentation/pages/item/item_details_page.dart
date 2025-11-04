@@ -1,0 +1,216 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../../core/locale/localization_extension.dart';
+import '../../../domain/models/food_item.dart';
+import '../../widgets/manual_flip_card.dart';
+
+class ItemDetailsPage extends StatelessWidget {
+  const ItemDetailsPage({super.key, required this.item});
+
+  static const routeName = '/item/details';
+
+  final FoodItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(item.name),
+      ),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Hero(
+              tag: 'food_${item.id}',
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(32),
+                  bottomRight: Radius.circular(32),
+                ),
+                child: Image.network(
+                  item.imageUrl,
+                  height: 260,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) {
+                      return child;
+                    }
+                    return SizedBox(
+                      height: 260,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.name,
+                          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '\\$${item.price.toStringAsFixed(2)}',
+                            style: theme.textTheme.headlineSmall?.copyWith(color: colorScheme.primary),
+                          ),
+                          const SizedBox(height: 4),
+                          Text('${item.weight} g • ${item.kcal} kcal'),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    item.description,
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(context.tr('flip_card_hint'), style: theme.textTheme.labelLarge),
+                  const SizedBox(height: 12),
+                  ManualFlipCard(
+                    front: _InfoSide(
+                      title: context.tr('nutrition_front_title'),
+                      subtitle: context.tr('nutrition_front_sub'),
+                      content: _buildTagWrap(context),
+                    ),
+                    back: _InfoSide(
+                      title: context.tr('nutrition_back_title'),
+                      subtitle: context.tr('nutrition_back_sub'),
+                      content: _buildFacts(context),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${context.tr('added_to_cart')} ${item.name}')),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(56),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                    ),
+                    icon: const Icon(Icons.shopping_bag_outlined),
+                    label: Text(context.tr('action_add_cart')),
+                  ).animate().slideY(begin: 0.2, end: 0, curve: Curves.easeOut).fadeIn(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTagWrap(BuildContext context) {
+    final theme = Theme.of(context);
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: item.tags
+          .map(
+            (tag) => Chip(
+              label: Text(tag),
+              backgroundColor: theme.colorScheme.surfaceVariant,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildFacts(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.titleMedium;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _FactTile(label: context.tr('fact_weight'), value: '${item.weight} g', style: style),
+        _FactTile(label: context.tr('fact_kcal'), value: '${item.kcal} kcal', style: style),
+        _FactTile(
+          label: context.tr('fact_price'),
+          value: '\\$${item.price.toStringAsFixed(2)}',
+          style: style,
+        ),
+        _FactTile(
+          label: context.tr('fact_type'),
+          value: item.isVegan ? context.tr('fact_type_vegan') : context.tr('fact_type_mixed'),
+          style: style,
+        ),
+        _FactTile(
+          label: context.tr('fact_new'),
+          value: item.isNew ? context.tr('fact_new_yes') : context.tr('fact_new_no'),
+          style: style,
+        ),
+      ],
+    );
+  }
+}
+
+class _InfoSide extends StatelessWidget {
+  const _InfoSide({required this.title, required this.subtitle, required this.content});
+
+  final String title;
+  final String subtitle;
+  final Widget content;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      color: theme.colorScheme.surface,
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text(subtitle, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 16),
+          content,
+        ],
+      ),
+    );
+  }
+}
+
+class _FactTile extends StatelessWidget {
+  const _FactTile({required this.label, required this.value, required this.style});
+
+  final String label;
+  final String value;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: style)),
+          Text(value, style: style?.copyWith(fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}

@@ -4,10 +4,15 @@ import 'core/locale/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/controllers/app_controller.dart';
 import 'presentation/controllers/auth_controller.dart';
+import 'presentation/controllers/catalog_controller.dart';
+import 'data/local/food_local_data_source.dart';
+import 'domain/models/food_item.dart';
 import 'presentation/pages/auth/forgot_password_page.dart';
 import 'presentation/pages/auth/login_page.dart';
 import 'presentation/pages/auth/register_page.dart';
+import 'presentation/pages/catalog/catalog_page.dart';
 import 'presentation/pages/home/home_shell_page.dart';
+import 'presentation/pages/item/item_details_page.dart';
 import 'presentation/pages/onboarding/onboarding_page.dart';
 import 'presentation/pages/settings/settings_page.dart';
 import 'presentation/pages/splash/splash_page.dart';
@@ -73,6 +78,22 @@ class GreenBiteApp extends StatelessWidget {
       case HomeShellPage.routeName:
         return MaterialPageRoute<void>(
           builder: (_) => HomeShellPage(controller: appController),
+          settings: settings,
+        );
+      case CatalogPage.routeName:
+        return MaterialPageRoute<void>(
+          builder: (_) => CatalogPage(
+            controller: CatalogController(dataSource: FoodLocalDataSource()),
+          ),
+          settings: settings,
+        );
+      case ItemDetailsPage.routeName:
+        final item = settings.arguments;
+        if (item is! FoodItem) {
+          return null;
+        }
+        return MaterialPageRoute<void>(
+          builder: (_) => ItemDetailsPage(item: item),
           settings: settings,
         );
       case SettingsPage.routeName:
