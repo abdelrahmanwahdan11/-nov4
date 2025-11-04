@@ -27,6 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _slowNetwork = prefs.getBool(AppConstants.sharedPrefsSlowNetworkKey) ?? false;
     });
@@ -35,6 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleSlow(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(AppConstants.sharedPrefsSlowNetworkKey, value);
+    if (!mounted) return;
     setState(() => _slowNetwork = value);
   }
 
@@ -57,13 +59,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: Text(loc.translate('settingsTheme')),
                 trailing: DropdownButton<ThemeMode>(
                   value: themeController.themeMode,
-                  items: const [
-                    DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
-                    DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                    DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+                  items: [
+                    DropdownMenuItem(value: ThemeMode.system, child: Text(loc.translate('themeSystem'))),
+                    DropdownMenuItem(value: ThemeMode.light, child: Text(loc.translate('themeLight'))),
+                    DropdownMenuItem(value: ThemeMode.dark, child: Text(loc.translate('themeDark'))),
                   ],
                   onChanged: (value) {
-                    if (value != null) themeController.setThemeMode(value);
+                    if (value != null) {
+                      themeController.setThemeMode(value);
+                    }
                   },
                 ),
               ),
@@ -72,13 +76,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 12),
               Wrap(
                 spacing: 12,
+                runSpacing: 12,
                 children: AppConstants.primaryColorPalette
                     .map(
                       (color) => GestureDetector(
                         onTap: () => themeController.setSeedColor(color),
                         child: CircleAvatar(
                           backgroundColor: color,
-                          child: themeController.seedColor == color ? const Icon(Icons.check, color: Colors.white) : null,
+                          radius: 20,
+                          child: themeController.seedColor == color
+                              ? const Icon(Icons.check, color: Colors.white)
+                              : null,
                         ),
                       ),
                     )
@@ -90,24 +98,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 trailing: DropdownButton<Locale>(
                   value: localeController.locale,
                   items: AppConstants.supportedLocales
-                      .map((locale) => DropdownMenuItem(value: locale, child: Text(locale.languageCode)))
+                      .map((locale) => DropdownMenuItem(value: locale, child: Text(locale.languageCode.toUpperCase())))
                       .toList(),
                   onChanged: (value) {
-                    if (value != null) localeController.setLocale(value);
+                    if (value != null) {
+                      localeController.setLocale(value);
+                    }
                   },
                 ),
               ),
               const Divider(),
               SwitchListTile(
-                title: const Text('Slow network simulation'),
+                title: Text(loc.translate('slowNetworkSimulation')),
                 value: _slowNetwork,
                 onChanged: _toggleSlow,
               ),
               ListTile(
                 title: Text(loc.translate('settingsTutorial')),
-                trailing: ElevatedButton(
+                trailing: OutlinedButton(
                   onPressed: tutorialController.reset,
-                  child: const Text('Restart'),
+                  child: Text(loc.translate('reset')),
                 ),
               ),
               const SizedBox(height: 16),
@@ -115,8 +125,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onPressed: () async {
                   await themeController.resetDefaults();
                   await localeController.setLocale(AppConstants.defaultLocale);
+                  await _toggleSlow(false);
                 },
-                child: const Text('Restore defaults'),
+                child: Text(loc.translate('restoreDefaults')),
               ),
             ],
           ),
