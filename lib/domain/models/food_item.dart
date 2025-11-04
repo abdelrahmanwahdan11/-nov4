@@ -16,6 +16,8 @@ class FoodItem {
     required this.isVegan,
     required this.sizes,
     required this.addons,
+    required this.addedAt,
+    required this.popularityScore,
   });
 
   final String id;
@@ -30,6 +32,8 @@ class FoodItem {
   final bool isVegan;
   final List<FoodSizeOption> sizes;
   final List<FoodAddonOption> addons;
+  final DateTime addedAt;
+  final int popularityScore;
 
   bool get isLowCalorie => kcal <= 420;
 
@@ -73,6 +77,8 @@ class FoodItem {
     bool? isVegan,
     List<FoodSizeOption>? sizes,
     List<FoodAddonOption>? addons,
+    DateTime? addedAt,
+    int? popularityScore,
   }) {
     return FoodItem(
       id: id ?? this.id,
@@ -87,6 +93,8 @@ class FoodItem {
       isVegan: isVegan ?? this.isVegan,
       sizes: sizes ?? List<FoodSizeOption>.from(this.sizes),
       addons: addons ?? List<FoodAddonOption>.from(this.addons),
+      addedAt: addedAt ?? this.addedAt,
+      popularityScore: popularityScore ?? this.popularityScore,
     );
   }
 }

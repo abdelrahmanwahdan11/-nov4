@@ -18,14 +18,19 @@ class CatalogController extends ChangeNotifier {
     ValueListenable<ConnectionOverride>? connectionOverride,
     ValueNotifier<bool>? layoutMode,
     Future<void> Function(bool)? onLayoutModeChanged,
+    ValueNotifier<CatalogSortOption>? sortOption,
+    Future<void> Function(CatalogSortOption)? onSortOptionChanged,
     CatalogPresetsLocalDataSource? presetsDataSource,
   })
       : _dataSource = dataSource,
         _connectionOverride = connectionOverride,
         _layoutModePersister = onLayoutModeChanged,
+        _sortPersister = onSortOptionChanged,
         _presetsDataSource = presetsDataSource ?? CatalogPresetsLocalDataSource(),
         isGridMode = layoutMode ?? ValueNotifier<bool>(true),
         _ownsLayoutMode = layoutMode == null,
+        sortOption = sortOption ?? ValueNotifier<CatalogSortOption>(CatalogSortOption.newest),
+        _ownsSortOption = sortOption == null,
         items = ValueNotifier<List<FoodItem>>(<FoodItem>[]),
         isLoading = ValueNotifier<bool>(false),
         isRefreshing = ValueNotifier<bool>(false),
@@ -46,11 +51,13 @@ class CatalogController extends ChangeNotifier {
         pinnedPresets = ValueNotifier<List<CatalogFilterPreset>>(<CatalogFilterPreset>[]),
         _presetsLoaded = false {
     _connectionOverride?.addListener(_handleConnectionChange);
+    this.sortOption.addListener(_handleSortOptionChanged);
   }
 
   final FoodLocalDataSource _dataSource;
   final ValueListenable<ConnectionOverride>? _connectionOverride;
   final Future<void> Function(bool)? _layoutModePersister;
+  final Future<void> Function(CatalogSortOption)? _sortPersister;
   final CatalogPresetsLocalDataSource _presetsDataSource;
 
   final ValueNotifier<List<FoodItem>> items;
@@ -60,6 +67,8 @@ class CatalogController extends ChangeNotifier {
   final ValueNotifier<CatalogFilters> filters;
   final ValueNotifier<bool> isGridMode;
   final bool _ownsLayoutMode;
+  final ValueNotifier<CatalogSortOption> sortOption;
+  final bool _ownsSortOption;
   final ValueNotifier<List<String>> availableTags;
   final ValueNotifier<bool> isPaginating;
   final ValueNotifier<ContentStatus> status;
@@ -140,6 +149,17 @@ class CatalogController extends ChangeNotifier {
     final persist = _layoutModePersister;
     if (persist != null) {
       unawaited(persist(isGridMode.value));
+    }
+  }
+
+  void updateSortOption(CatalogSortOption option) {
+    if (sortOption.value == option) {
+      return;
+    }
+    sortOption.value = option;
+    final persist = _sortPersister;
+    if (persist != null) {
+      unawaited(persist(option));
     }
   }
 
@@ -356,10 +376,34 @@ class CatalogController extends ChangeNotifier {
           current.selectedTags.every((tag) => item.tags.contains(tag));
       return priceMatch && weightMatch && kcalMatch && tagsMatch;
     }).toList();
+    _sortFilteredItems();
     if (resetPage) {
       _pageIndex = 0;
     }
     _updatePage();
+  }
+
+  void _sortFilteredItems() {
+    switch (sortOption.value) {
+      case CatalogSortOption.priceLowToHigh:
+        _filteredItems.sort((a, b) => a.price.compareTo(b.price));
+        break;
+      case CatalogSortOption.priceHighToLow:
+        _filteredItems.sort((a, b) => b.price.compareTo(a.price));
+        break;
+      case CatalogSortOption.kcalLowToHigh:
+        _filteredItems.sort((a, b) => a.kcal.compareTo(b.kcal));
+        break;
+      case CatalogSortOption.kcalHighToLow:
+        _filteredItems.sort((a, b) => b.kcal.compareTo(a.kcal));
+        break;
+      case CatalogSortOption.bestSellers:
+        _filteredItems.sort((a, b) => b.popularityScore.compareTo(a.popularityScore));
+        break;
+      case CatalogSortOption.newest:
+        _filteredItems.sort((a, b) => b.addedAt.compareTo(a.addedAt));
+        break;
+    }
   }
 
   void _updatePage() {
@@ -422,9 +466,14 @@ class CatalogController extends ChangeNotifier {
     );
   }
 
+  void _handleSortOptionChanged() {
+    _applyFilters(resetPage: true);
+  }
+
   @override
   void dispose() {
     _connectionOverride?.removeListener(_handleConnectionChange);
+    sortOption.removeListener(_handleSortOptionChanged);
     items.dispose();
     isLoading.dispose();
     isRefreshing.dispose();
@@ -432,6 +481,9 @@ class CatalogController extends ChangeNotifier {
     filters.dispose();
     if (_ownsLayoutMode) {
       isGridMode.dispose();
+    }
+    if (_ownsSortOption) {
+      sortOption.dispose();
     }
     availableTags.dispose();
     isPaginating.dispose();

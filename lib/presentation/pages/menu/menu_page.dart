@@ -94,9 +94,12 @@ class _MenuPageState extends State<MenuPage> {
     _cartController = CartScope.of(context);
     _favoritesController = FavoritesScope.maybeOf(context);
     _recentlyViewedController = RecentlyViewedScope.maybeOf(context);
+    final appController = AppScope.of(context);
     _controller ??= CatalogController(
       dataSource: FoodLocalDataSource(),
-      connectionOverride: AppScope.of(context).connectionOverride,
+      connectionOverride: appController.connectionOverride,
+      sortOption: appController.catalogSortOption,
+      onSortOptionChanged: appController.setCatalogSortOption,
     )
       ..loadInitial();
   }

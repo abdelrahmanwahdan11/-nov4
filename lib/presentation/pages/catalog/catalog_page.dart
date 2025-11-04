@@ -257,48 +257,83 @@ class _CatalogPageState extends State<CatalogPage> {
                                       ),
                                     );
                                   }
-                                  return ValueListenableBuilder<bool>(
-                                    valueListenable: _controller.isGridMode,
-                                    builder: (context, isGrid, _) {
-                                      if (isGrid) {
-                                        return SliverLayoutBuilder(
-                                          builder: (context, constraints) {
-                                            final crossAxisCount = ResponsiveBreakpoints.columnsForWidth(
-                                              constraints.crossAxisExtent,
-                                              min: 1,
-                                              max: 5,
+                                  return ValueListenableBuilder<CatalogSortOption>(
+                                    valueListenable: _controller.sortOption,
+                                    builder: (context, sort, __) {
+                                      return ValueListenableBuilder<bool>(
+                                        valueListenable: _controller.isGridMode,
+                                        builder: (context, isGrid, _) {
+                                          if (isGrid) {
+                                            return SliverLayoutBuilder(
+                                              builder: (context, constraints) {
+                                                final crossAxisCount = ResponsiveBreakpoints.columnsForWidth(
+                                                  constraints.crossAxisExtent,
+                                                  min: 1,
+                                                  max: 5,
+                                                );
+                                                final aspectRatio = ResponsiveBreakpoints
+                                                    .foodCardAspectRatio(constraints.crossAxisExtent);
+                                                return SliverGrid(
+                                                  key: ValueKey('grid-${sort.name}'),
+                                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                                    crossAxisCount: crossAxisCount,
+                                                    childAspectRatio: aspectRatio,
+                                                    crossAxisSpacing: gridSpacing,
+                                                    mainAxisSpacing: gridSpacing,
+                                                  ),
+                                                  delegate: SliverChildBuilderDelegate(
+                                                    (context, index) {
+                                                      final item = items[index];
+                                                      final card = _buildCard(item);
+                                                      return card
+                                                          .animate(
+                                                            key: ValueKey('${item.id}-${sort.name}-$index'),
+                                                          )
+                                                          .fadeIn(
+                                                            duration: const Duration(milliseconds: 240),
+                                                            curve: Curves.easeOutCubic,
+                                                          )
+                                                          .moveY(
+                                                            begin: 18,
+                                                            end: 0,
+                                                            duration: const Duration(milliseconds: 260),
+                                                            curve: Curves.easeOutCubic,
+                                                          );
+                                                    },
+                                                    childCount: items.length,
+                                                  ),
+                                                );
+                                              },
                                             );
-                                            final aspectRatio = ResponsiveBreakpoints
-                                                .foodCardAspectRatio(constraints.crossAxisExtent);
-                                            return SliverGrid(
-                                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: crossAxisCount,
-                                                childAspectRatio: aspectRatio,
-                                                crossAxisSpacing: gridSpacing,
-                                                mainAxisSpacing: gridSpacing,
-                                              ),
-                                              delegate: SliverChildBuilderDelegate(
-                                                (context, index) {
-                                                  final item = items[index];
-                                                  return _buildCard(item);
-                                                },
-                                                childCount: items.length,
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      }
-                                      return SliverList(
-                                        delegate: SliverChildBuilderDelegate(
-                                          (context, index) {
-                                            final item = items[index];
-                                            return Padding(
-                                              padding: EdgeInsets.only(bottom: verticalSpacing),
-                                              child: _buildCard(item),
-                                            );
-                                          },
-                                          childCount: items.length,
-                                        ),
+                                          }
+                                          return SliverList(
+                                            key: ValueKey('list-${sort.name}'),
+                                            delegate: SliverChildBuilderDelegate(
+                                              (context, index) {
+                                                final item = items[index];
+                                                final card = _buildCard(item);
+                                                return Padding(
+                                                  padding: EdgeInsets.only(bottom: verticalSpacing),
+                                                  child: card
+                                                      .animate(
+                                                        key: ValueKey('${item.id}-${sort.name}-$index'),
+                                                      )
+                                                      .fadeIn(
+                                                        duration: const Duration(milliseconds: 220),
+                                                        curve: Curves.easeOutCubic,
+                                                      )
+                                                      .moveY(
+                                                        begin: 16,
+                                                        end: 0,
+                                                        duration: const Duration(milliseconds: 240),
+                                                        curve: Curves.easeOutCubic,
+                                                      ),
+                                                );
+                                              },
+                                              childCount: items.length,
+                                            ),
+                                          );
+                                        },
                                       );
                                     },
                                   );
@@ -395,6 +430,8 @@ class _FiltersPanel extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
+              _SortingCenter(controller: controller),
+              const SizedBox(height: 16),
               ValueListenableBuilder<List<CatalogFilterPreset>>(
                 valueListenable: controller.pinnedPresets,
                 builder: (context, pinned, _) {
@@ -626,6 +663,81 @@ class _FiltersPanel extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
+  }
+}
+
+class _SortingCenter extends StatelessWidget {
+  const _SortingCenter({required this.controller});
+
+  final CatalogController controller;
+
+  static const List<CatalogSortOption> _options = <CatalogSortOption>[
+    CatalogSortOption.newest,
+    CatalogSortOption.priceLowToHigh,
+    CatalogSortOption.priceHighToLow,
+    CatalogSortOption.kcalLowToHigh,
+    CatalogSortOption.kcalHighToLow,
+    CatalogSortOption.bestSellers,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final hintColor = theme.colorScheme.onSurfaceVariant.withOpacity(0.72);
+    return ValueListenableBuilder<CatalogSortOption>(
+      valueListenable: controller.sortOption,
+      builder: (context, selected, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.tr('sorting_center_title'),
+              style: theme.textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _options.map((option) {
+                final isSelected = option == selected;
+                return ChoiceChip(
+                  label: Text(_labelForOption(context, option)),
+                  selected: isSelected,
+                  showCheckmark: false,
+                  onSelected: (value) {
+                    if (value) {
+                      controller.updateSortOption(option);
+                    }
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              context.tr('sorting_center_hint'),
+              style: theme.textTheme.bodySmall?.copyWith(color: hintColor),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _labelForOption(BuildContext context, CatalogSortOption option) {
+    switch (option) {
+      case CatalogSortOption.newest:
+        return context.tr('sorting_newest');
+      case CatalogSortOption.priceLowToHigh:
+        return context.tr('sorting_price_low_high');
+      case CatalogSortOption.priceHighToLow:
+        return context.tr('sorting_price_high_low');
+      case CatalogSortOption.kcalLowToHigh:
+        return context.tr('sorting_kcal_low_high');
+      case CatalogSortOption.kcalHighToLow:
+        return context.tr('sorting_kcal_high_low');
+      case CatalogSortOption.bestSellers:
+        return context.tr('sorting_best_sellers');
+    }
   }
 }
 

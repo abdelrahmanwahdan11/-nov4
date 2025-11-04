@@ -56,6 +56,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 2.10,
       ),
     ],
+    addedAt: DateTime(2024, 4, 18),
+    popularityScore: 96,
   ),
   FoodItem(
     id: 'gb_wrap_02',
@@ -112,6 +114,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 12, 12),
+    popularityScore: 81,
   ),
   FoodItem(
     id: 'gb_bowl_03',
@@ -168,6 +172,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2024, 4, 4),
+    popularityScore: 92,
   ),
   FoodItem(
     id: 'gb_plate_04',
@@ -224,6 +230,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 11, 3),
+    popularityScore: 78,
   ),
   FoodItem(
     id: 'gb_soup_05',
@@ -280,6 +288,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 10, 15),
+    popularityScore: 74,
   ),
   FoodItem(
     id: 'gb_breakfast_06',
@@ -336,6 +346,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2024, 3, 20),
+    popularityScore: 88,
   ),
   FoodItem(
     id: 'gb_smoothie_07',
@@ -392,6 +404,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 9, 22),
+    popularityScore: 80,
   ),
   FoodItem(
     id: 'gb_plate_08',
@@ -448,6 +462,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 8, 18),
+    popularityScore: 75,
   ),
   FoodItem(
     id: 'gb_bake_09',
@@ -504,6 +520,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 9, 2),
+    popularityScore: 83,
   ),
   FoodItem(
     id: 'gb_salad_10',
@@ -560,6 +578,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2024, 3, 8),
+    popularityScore: 90,
   ),
   FoodItem(
     id: 'gb_bowl_11',
@@ -616,6 +636,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 12, 28),
+    popularityScore: 79,
   ),
   FoodItem(
     id: 'gb_plate_12',
@@ -672,6 +694,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 7, 25),
+    popularityScore: 73,
   ),
   FoodItem(
     id: 'gb_toast_13',
@@ -728,6 +752,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2024, 2, 14),
+    popularityScore: 87,
   ),
   FoodItem(
     id: 'gb_noodle_14',
@@ -784,6 +810,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 11, 28),
+    popularityScore: 82,
   ),
   FoodItem(
     id: 'gb_plate_15',
@@ -840,6 +868,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 10, 28),
+    popularityScore: 77,
   ),
   FoodItem(
     id: 'gb_bowl_16',
@@ -896,6 +926,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2024, 3, 30),
+    popularityScore: 89,
   ),
   FoodItem(
     id: 'gb_salad_17',
@@ -952,6 +984,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 9, 12),
+    popularityScore: 76,
   ),
   FoodItem(
     id: 'gb_plate_18',
@@ -1008,6 +1042,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 8, 5),
+    popularityScore: 74,
   ),
   FoodItem(
     id: 'gb_sweet_19',
@@ -1064,6 +1100,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 12, 2),
+    popularityScore: 85,
   ),
   FoodItem(
     id: 'gb_wrap_20',
@@ -1120,6 +1158,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2024, 4, 10),
+    popularityScore: 93,
   ),
   FoodItem(
     id: 'gb_breakfast_21',
@@ -1176,6 +1216,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 9, 30),
+    popularityScore: 78,
   ),
   FoodItem(
     id: 'gb_bowl_22',
@@ -1232,6 +1274,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 11, 12),
+    popularityScore: 82,
   ),
   FoodItem(
     id: 'gb_salad_23',
@@ -1288,6 +1332,8 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 7, 18),
+    popularityScore: 71,
   ),
   FoodItem(
     id: 'gb_plate_24',
@@ -1344,5 +1390,7 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         price: 1.50,
       ),
     ],
+    addedAt: DateTime(2023, 8, 22),
+    popularityScore: 72,
   ),
 ];

@@ -8,6 +8,15 @@ import '../../core/theme/theme_tokens.dart';
 
 enum ConnectionOverride { normal, offline, error }
 
+enum CatalogSortOption {
+  newest,
+  priceLowToHigh,
+  priceHighToLow,
+  kcalLowToHigh,
+  kcalHighToLow,
+  bestSellers,
+}
+
 class AppController extends ChangeNotifier {
   AppController();
 
@@ -20,6 +29,7 @@ class AppController extends ChangeNotifier {
   static const _connectionKey = 'connection_override';
   static const _catalogLayoutKey = 'catalog_layout';
   static const _contentDensityKey = 'content_density';
+  static const _catalogSortKey = 'catalog_sort';
 
   ThemeMode _themeMode = ThemeMode.system;
   Locale? _locale;
@@ -34,6 +44,8 @@ class AppController extends ChangeNotifier {
   final ValueNotifier<bool> catalogGridMode = ValueNotifier<bool>(true);
   final ValueNotifier<ContentDensity> contentDensity =
       ValueNotifier<ContentDensity>(ContentDensity.comfortable);
+  final ValueNotifier<CatalogSortOption> catalogSortOption =
+      ValueNotifier<CatalogSortOption>(CatalogSortOption.newest);
 
   ThemeMode get themeMode => _themeMode;
   Locale? get locale => _locale;
@@ -95,6 +107,9 @@ class AppController extends ChangeNotifier {
     contentDensity.value = densityValue == 'compact'
         ? ContentDensity.compact
         : ContentDensity.comfortable;
+
+    final sortValue = prefs.getString(_catalogSortKey);
+    catalogSortOption.value = _mapSortValue(sortValue);
 
     _initCompleter?.complete();
     notifyListeners();
@@ -177,11 +192,57 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setCatalogSortOption(CatalogSortOption option) async {
+    if (catalogSortOption.value == option) {
+      return;
+    }
+    catalogSortOption.value = option;
+    await _prefs?.setString(_catalogSortKey, _sortOptionToStorage(option));
+    notifyListeners();
+  }
+
+  CatalogSortOption _mapSortValue(String? value) {
+    switch (value) {
+      case 'price_low_high':
+        return CatalogSortOption.priceLowToHigh;
+      case 'price_high_low':
+        return CatalogSortOption.priceHighToLow;
+      case 'kcal_low_high':
+        return CatalogSortOption.kcalLowToHigh;
+      case 'kcal_high_low':
+        return CatalogSortOption.kcalHighToLow;
+      case 'best_sellers':
+        return CatalogSortOption.bestSellers;
+      case 'newest':
+        return CatalogSortOption.newest;
+      default:
+        return CatalogSortOption.newest;
+    }
+  }
+
+  String _sortOptionToStorage(CatalogSortOption option) {
+    switch (option) {
+      case CatalogSortOption.priceLowToHigh:
+        return 'price_low_high';
+      case CatalogSortOption.priceHighToLow:
+        return 'price_high_low';
+      case CatalogSortOption.kcalLowToHigh:
+        return 'kcal_low_high';
+      case CatalogSortOption.kcalHighToLow:
+        return 'kcal_high_low';
+      case CatalogSortOption.bestSellers:
+        return 'best_sellers';
+      case CatalogSortOption.newest:
+        return 'newest';
+    }
+  }
+
   @override
   void dispose() {
     connectionOverride.dispose();
     catalogGridMode.dispose();
     contentDensity.dispose();
+    catalogSortOption.dispose();
     super.dispose();
   }
 }

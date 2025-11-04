@@ -143,6 +143,8 @@ class GreenBiteApp extends StatelessWidget {
               connectionOverride: appController.connectionOverride,
               layoutMode: appController.catalogGridMode,
               onLayoutModeChanged: appController.setCatalogGridMode,
+              sortOption: appController.catalogSortOption,
+              onSortOptionChanged: appController.setCatalogSortOption,
               presetsDataSource: catalogPresetsDataSource,
             ),
           ),
