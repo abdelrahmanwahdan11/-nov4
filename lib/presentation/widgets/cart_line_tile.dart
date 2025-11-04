@@ -25,6 +25,14 @@ class CartLineTile extends StatelessWidget {
     final item = entry.item;
     final line = entry.line;
     final colorScheme = theme.colorScheme;
+    final sizeOption = item.sizeById(line.size) ?? item.defaultSize;
+    final weight = sizeOption.weightFor(item);
+    final kcal = sizeOption.kcalFor(item);
+    final addons = line.addons
+        .map((id) => item.addonById(id)?.label ?? id)
+        .where((label) => label.isNotEmpty)
+        .toList();
+    final addonsText = addons.isEmpty ? context.tr('cart_addons_none') : addons.join(', ');
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -60,8 +68,20 @@ class CartLineTile extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${item.weight} g • ${item.kcal} kcal',
+                        '${context.tr('cart_size_label')}: ${sizeOption.label}',
                         style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '$weight g • $kcal kcal',
+                        style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${context.tr('cart_addons_label')}: $addonsText',
+                        style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

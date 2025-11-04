@@ -212,7 +212,7 @@ class _SearchPageState extends State<SearchPage> {
                                       children: [
                                         ...item.tags.take(3).map((tag) => _buildTagChip(tag, query, theme)),
                                         Text(
-                                          '${item.kcal} kcal • \\$${item.price.toStringAsFixed(2)}',
+                                          '${item.kcal} kcal • \\$${item.defaultSize.priceFor(item).toStringAsFixed(2)}',
                                           style: theme.textTheme.labelMedium,
                                         ),
                                       ],

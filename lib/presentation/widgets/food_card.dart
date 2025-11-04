@@ -42,6 +42,7 @@ class FoodCard extends StatelessWidget {
           fontWeight: FontWeight.w600,
           color: theme.colorScheme.onPrimary,
         );
+        final displayPrice = item.defaultSize.priceFor(item);
         final width = sizeVariant == FoodCardSizeVariant.compact ? 160.0 : null;
         final height = sizeVariant == FoodCardSizeVariant.compact ? 240.0 : null;
         final radius = ThemeTokens.radiusForDensity(density);
@@ -158,7 +159,7 @@ class FoodCard extends StatelessWidget {
                           Row(
                             children: [
                               Text(
-                                '\\$${item.price.toStringAsFixed(2)}',
+                                '\\$${displayPrice.toStringAsFixed(2)}',
                                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                               ),
                               const Spacer(),

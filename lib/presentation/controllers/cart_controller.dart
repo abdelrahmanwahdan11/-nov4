@@ -76,7 +76,11 @@ class CartController extends ChangeNotifier {
     final items = await _catalogDataSource.fetchAll();
     _catalog = <String, FoodItem>{for (final item in items) item.id: item};
     final persistence = await _localDataSource.read();
-    _lines = List<CartLine>.from(persistence.lines);
+    _lines = persistence.lines
+        .map((line) => line.addons.isEmpty
+            ? line
+            : line.copyWith(addons: (List<String>.from(line.addons)..sort())))
+        .toList();
     if (persistence.promoCode != null && persistence.promoCode!.isNotEmpty) {
       promoCode.value = persistence.promoCode;
     }
@@ -84,22 +88,39 @@ class CartController extends ChangeNotifier {
     _initialized = true;
   }
 
-  Future<void> addItem(FoodItem item) async {
+  Future<void> addItem(
+    FoodItem item, {
+    String? sizeId,
+    List<String>? addons,
+    int quantity = 1,
+  }) async {
     await initialize();
-    final key = _composeKey(item.id, 'regular', const <String>[]);
+    if (quantity <= 0) {
+      return;
+    }
+    final sizeOption = item.sizeById(sizeId ?? item.defaultSize.id) ?? item.defaultSize;
+    final normalizedAddons = List<String>.from(addons ?? const <String>[]);
+    normalizedAddons.removeWhere((addon) => addon.isEmpty);
+    normalizedAddons.sort();
+    final addonTotal = normalizedAddons.fold<double>(
+      0,
+      (previousValue, addonId) => previousValue + (item.addonById(addonId)?.price ?? 0),
+    );
+    final unitPrice = double.parse((sizeOption.priceFor(item) + addonTotal).toStringAsFixed(2));
+    final key = _composeKey(item.id, sizeOption.id, normalizedAddons);
     final index = _lines.indexWhere((line) => line.identifier == key);
     if (index >= 0) {
       final existing = _lines[index];
-      _lines[index] = existing.copyWith(qty: existing.qty + 1);
+      _lines[index] = existing.copyWith(qty: existing.qty + quantity);
     } else {
       _lines = List<CartLine>.from(_lines)
         ..add(
           CartLine(
             itemId: item.id,
-            qty: 1,
-            size: 'regular',
-            addons: const <String>[],
-            unitPrice: item.price,
+            qty: quantity,
+            size: sizeOption.id,
+            addons: normalizedAddons,
+            unitPrice: unitPrice,
           ),
         );
     }
@@ -215,7 +236,8 @@ class CartController extends ChangeNotifier {
     if (addons.isEmpty) {
       return '$itemId|$size';
     }
-    return '$itemId|$size|${addons.join('+')}';
+    final normalized = List<String>.from(addons)..sort();
+    return '$itemId|$size|${normalized.join('+')}';
   }
 
   void _rebuildEntries() {

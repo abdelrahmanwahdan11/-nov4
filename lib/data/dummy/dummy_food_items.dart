@@ -13,6 +13,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=80',
     isNew: true,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_salad_01_sm',
+        label: 'Small',
+        description: 'Light bowl',
+        priceDelta: -1.30,
+        weightDelta: -100,
+        kcalDelta: -70,
+      ),
+      const FoodSizeOption(
+        id: 'gb_salad_01_reg',
+        label: 'Regular',
+        description: 'Balanced bowl',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_salad_01_lg',
+        label: 'Large',
+        description: 'Shareable bowl',
+        priceDelta: 1.90,
+        weightDelta: 120,
+        kcalDelta: 80,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_salad_01_seeds',
+        label: 'Seed crunch mix',
+        price: 1.40,
+      ),
+      const FoodAddonOption(
+        id: 'gb_salad_01_feta',
+        label: 'Crumble feta',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_salad_01_avocado',
+        label: 'Avocado fan',
+        price: 2.10,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_wrap_02',
@@ -26,6 +69,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_wrap_02_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_wrap_02_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_wrap_02_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_wrap_02_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_wrap_02_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_wrap_02_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_bowl_03',
@@ -39,6 +125,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1200&q=80',
     isNew: true,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_bowl_03_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_bowl_03_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_bowl_03_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_bowl_03_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_bowl_03_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_bowl_03_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_plate_04',
@@ -52,6 +181,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: false,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_plate_04_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_04_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_04_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_plate_04_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_04_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_04_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_soup_05',
@@ -65,6 +237,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_soup_05_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_soup_05_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_soup_05_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_soup_05_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_soup_05_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_soup_05_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_breakfast_06',
@@ -78,6 +293,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=1200&q=80',
     isNew: true,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_breakfast_06_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_breakfast_06_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_breakfast_06_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_breakfast_06_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_breakfast_06_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_breakfast_06_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_smoothie_07',
@@ -91,6 +349,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_smoothie_07_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_smoothie_07_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_smoothie_07_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_smoothie_07_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_smoothie_07_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_smoothie_07_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_plate_08',
@@ -104,6 +405,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1528712306091-ed0763094c98?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_plate_08_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_08_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_08_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_plate_08_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_08_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_08_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_bake_09',
@@ -117,6 +461,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1512621776951-ccb87f0ebd4e?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: false,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_bake_09_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_bake_09_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_bake_09_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_bake_09_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_bake_09_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_bake_09_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_salad_10',
@@ -130,6 +517,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
     isNew: true,
     isVegan: false,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_salad_10_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_salad_10_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_salad_10_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_salad_10_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_salad_10_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_salad_10_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_bowl_11',
@@ -143,6 +573,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1481931098730-318b6f776db0?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_bowl_11_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_bowl_11_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_bowl_11_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_bowl_11_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_bowl_11_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_bowl_11_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_plate_12',
@@ -156,6 +629,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: false,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_plate_12_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_12_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_12_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_plate_12_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_12_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_12_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_toast_13',
@@ -169,6 +685,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1473093226795-af9932fe5856?auto=format&fit=crop&w=1200&q=80',
     isNew: true,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_toast_13_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_toast_13_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_toast_13_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_toast_13_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_toast_13_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_toast_13_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_noodle_14',
@@ -182,6 +741,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1473093226795-af9932fe5856?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_noodle_14_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_noodle_14_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_noodle_14_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_noodle_14_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_noodle_14_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_noodle_14_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_plate_15',
@@ -195,6 +797,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1481931098730-318b6f776db0?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: false,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_plate_15_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_15_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_15_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_plate_15_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_15_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_15_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_bowl_16',
@@ -208,6 +853,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1543352634-873f17a7a088?auto=format&fit=crop&w=1200&q=80',
     isNew: true,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_bowl_16_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_bowl_16_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_bowl_16_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_bowl_16_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_bowl_16_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_bowl_16_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_salad_17',
@@ -221,6 +909,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_salad_17_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_salad_17_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_salad_17_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_salad_17_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_salad_17_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_salad_17_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_plate_18',
@@ -234,6 +965,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_plate_18_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_18_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_18_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_plate_18_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_18_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_18_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_sweet_19',
@@ -247,6 +1021,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1523986371872-9d3ba2e2f642?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_sweet_19_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_sweet_19_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_sweet_19_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_sweet_19_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_sweet_19_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_sweet_19_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_wrap_20',
@@ -260,6 +1077,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1488477304112-4944851de03d?auto=format&fit=crop&w=1200&q=80',
     isNew: true,
     isVegan: false,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_wrap_20_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_wrap_20_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_wrap_20_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_wrap_20_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_wrap_20_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_wrap_20_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_breakfast_21',
@@ -273,6 +1133,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: false,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_breakfast_21_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_breakfast_21_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_breakfast_21_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_breakfast_21_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_breakfast_21_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_breakfast_21_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_bowl_22',
@@ -286,6 +1189,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_bowl_22_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_bowl_22_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_bowl_22_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_bowl_22_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_bowl_22_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_bowl_22_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_salad_23',
@@ -299,6 +1245,49 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: true,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_salad_23_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_salad_23_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_salad_23_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_salad_23_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_salad_23_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_salad_23_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
   FoodItem(
     id: 'gb_plate_24',
@@ -312,5 +1301,48 @@ const List<FoodItem> dummyFoodItems = <FoodItem>[
         'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
     isNew: false,
     isVegan: false,
+    sizes: <FoodSizeOption>[
+      const FoodSizeOption(
+        id: 'gb_plate_24_sm',
+        label: 'Small',
+        description: 'Light portion',
+        priceDelta: -1.10,
+        weightDelta: -80,
+        kcalDelta: -60,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_24_reg',
+        label: 'Regular',
+        description: 'Balanced portion',
+        priceDelta: 0,
+        weightDelta: 0,
+        kcalDelta: 0,
+      ),
+      const FoodSizeOption(
+        id: 'gb_plate_24_lg',
+        label: 'Large',
+        description: 'Hearty portion',
+        priceDelta: 2.00,
+        weightDelta: 110,
+        kcalDelta: 90,
+      ),
+    ],
+    addons: <FoodAddonOption>[
+      const FoodAddonOption(
+        id: 'gb_plate_24_addon_boost',
+        label: 'Protein boost',
+        price: 1.80,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_24_addon_crunch',
+        label: 'Crunch topper',
+        price: 1.20,
+      ),
+      const FoodAddonOption(
+        id: 'gb_plate_24_addon_dress',
+        label: 'Signature drizzle',
+        price: 1.50,
+      ),
+    ],
   ),
 ];

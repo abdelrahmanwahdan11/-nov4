@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 class FoodItem {
@@ -12,6 +14,8 @@ class FoodItem {
     required this.imageUrl,
     required this.isNew,
     required this.isVegan,
+    required this.sizes,
+    required this.addons,
   });
 
   final String id;
@@ -24,8 +28,37 @@ class FoodItem {
   final String imageUrl;
   final bool isNew;
   final bool isVegan;
+  final List<FoodSizeOption> sizes;
+  final List<FoodAddonOption> addons;
 
   bool get isLowCalorie => kcal <= 420;
+
+  FoodSizeOption get defaultSize {
+    for (final option in sizes) {
+      if (option.priceDelta == 0) {
+        return option;
+      }
+    }
+    return sizes.isNotEmpty ? sizes.first : FoodSizeOption.fallback();
+  }
+
+  FoodSizeOption? sizeById(String id) {
+    for (final option in sizes) {
+      if (option.id == id) {
+        return option;
+      }
+    }
+    return null;
+  }
+
+  FoodAddonOption? addonById(String id) {
+    for (final addon in addons) {
+      if (addon.id == id) {
+        return addon;
+      }
+    }
+    return null;
+  }
 
   FoodItem copyWith({
     String? id,
@@ -38,6 +71,8 @@ class FoodItem {
     String? imageUrl,
     bool? isNew,
     bool? isVegan,
+    List<FoodSizeOption>? sizes,
+    List<FoodAddonOption>? addons,
   }) {
     return FoodItem(
       id: id ?? this.id,
@@ -50,8 +85,65 @@ class FoodItem {
       imageUrl: imageUrl ?? this.imageUrl,
       isNew: isNew ?? this.isNew,
       isVegan: isVegan ?? this.isVegan,
+      sizes: sizes ?? List<FoodSizeOption>.from(this.sizes),
+      addons: addons ?? List<FoodAddonOption>.from(this.addons),
     );
   }
+}
+
+@immutable
+class FoodSizeOption {
+  const FoodSizeOption({
+    required this.id,
+    required this.label,
+    required this.description,
+    required this.priceDelta,
+    required this.weightDelta,
+    required this.kcalDelta,
+  });
+
+  final String id;
+  final String label;
+  final String description;
+  final double priceDelta;
+  final int weightDelta;
+  final int kcalDelta;
+
+  static FoodSizeOption fallback() {
+    return const FoodSizeOption(
+      id: 'regular',
+      label: 'Regular',
+      description: 'Standard portion',
+      priceDelta: 0,
+      weightDelta: 0,
+      kcalDelta: 0,
+    );
+  }
+
+  double priceFor(FoodItem item) {
+    return double.parse((item.price + priceDelta).toStringAsFixed(2));
+  }
+
+  int weightFor(FoodItem item) {
+    return math.max(0, item.weight + weightDelta);
+  }
+
+  int kcalFor(FoodItem item) {
+    return math.max(0, item.kcal + kcalDelta);
+  }
+}
+
+@immutable
+class FoodAddonOption {
+  const FoodAddonOption({
+    required this.id,
+    required this.label,
+    required this.price,
+  });
+
+  final String id;
+  final String label;
+  final double price;
 }
 
 @immutable
