@@ -42,6 +42,10 @@ analysis_benchmark.json
 .pub/
 build/
 flutter_*.png
+# Flutter web generated icons (binary assets not committed)
+web/favicon.png
+web/icons/
+web/apple-touch-icon.png
 linked_*.ds
 unlinked.ds
 unlinked_spec.ds
