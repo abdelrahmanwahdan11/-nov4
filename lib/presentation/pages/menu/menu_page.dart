@@ -5,6 +5,7 @@ import '../../../core/locale/localization_extension.dart';
 import '../../../data/local/food_local_data_source.dart';
 import '../../../domain/models/food_item.dart';
 import '../../controllers/catalog_controller.dart';
+import '../../controllers/cart_controller.dart';
 import '../../widgets/food_card.dart';
 import '../catalog/catalog_page.dart';
 import '../item/item_details_page.dart';
@@ -19,6 +20,7 @@ class MenuPage extends StatefulWidget {
 class _MenuPageState extends State<MenuPage> {
   late final CatalogController _controller;
   final ValueNotifier<String?> _selectedTag = ValueNotifier<String?>(null);
+  CartController? _cartController;
 
   @override
   void initState() {
@@ -34,6 +36,12 @@ class _MenuPageState extends State<MenuPage> {
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _cartController = CartScope.of(context);
+  }
+
   void _openCatalog() {
     Navigator.of(context).pushNamed(CatalogPage.routeName);
   }
@@ -42,7 +50,11 @@ class _MenuPageState extends State<MenuPage> {
     Navigator.of(context).pushNamed(ItemDetailsPage.routeName, arguments: item);
   }
 
-  void _addToCart(FoodItem item) {
+  Future<void> _addToCart(FoodItem item) async {
+    final controller = _cartController;
+    if (controller != null) {
+      await controller.addItem(item);
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${context.tr('added_to_cart')} ${item.name}'),

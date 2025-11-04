@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/locale/localization_extension.dart';
 import '../../../domain/models/food_item.dart';
+import '../../controllers/cart_controller.dart';
 import '../../widgets/manual_flip_card.dart';
 
 class ItemDetailsPage extends StatelessWidget {
@@ -101,7 +102,9 @@ class ItemDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                   ElevatedButton.icon(
-                    onPressed: () {
+                    onPressed: () async {
+                      final cart = CartScope.of(context);
+                      await cart.addItem(item);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('${context.tr('added_to_cart')} ${item.name}')),
                       );

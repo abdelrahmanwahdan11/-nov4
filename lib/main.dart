@@ -4,7 +4,9 @@ import 'core/locale/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/controllers/app_controller.dart';
 import 'presentation/controllers/auth_controller.dart';
+import 'presentation/controllers/cart_controller.dart';
 import 'presentation/controllers/catalog_controller.dart';
+import 'data/local/cart_local_data_source.dart';
 import 'data/local/food_local_data_source.dart';
 import 'domain/models/food_item.dart';
 import 'presentation/pages/auth/forgot_password_page.dart';
@@ -21,10 +23,16 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final appController = AppController();
   final authController = AuthController(appController: appController);
+  final cartController = CartController(
+    catalogDataSource: FoodLocalDataSource(),
+    localDataSource: CartLocalDataSource(),
+  );
+  await cartController.initialize();
   runApp(
     GreenBiteApp(
       appController: appController,
       authController: authController,
+      cartController: cartController,
     ),
   );
 }
@@ -34,10 +42,12 @@ class GreenBiteApp extends StatelessWidget {
     super.key,
     required this.appController,
     required this.authController,
+    required this.cartController,
   });
 
   final AppController appController;
   final AuthController authController;
+  final CartController cartController;
 
   Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -117,46 +127,49 @@ class GreenBiteApp extends StatelessWidget {
           controller: appController,
           child: AuthScope(
             controller: authController,
-            child: MaterialApp(
-              title: 'GreenBite',
-              debugShowCheckedModeBanner: false,
-              themeMode: appController.themeMode,
-              theme: AppTheme.buildTheme(
-                Brightness.light,
-                primarySeed: appController.primarySeed,
-              ),
-              darkTheme: AppTheme.buildTheme(
-                Brightness.dark,
-                primarySeed: appController.primarySeed,
-              ),
-              locale: locale,
-              supportedLocales: const [Locale('en'), Locale('ar')],
-              localizationsDelegates: const [
-                AppLocalizationsDelegate(),
-                GlobalWidgetsLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              localeListResolutionCallback: (locales, supported) {
-                if (locale != null) {
-                  return locale;
-                }
-                if (locales != null && locales.isNotEmpty) {
-                  for (final candidate in locales) {
-                    final match = supported.firstWhere(
-                      (supportedLocale) =>
-                          supportedLocale.languageCode == candidate.languageCode,
-                      orElse: () => supported.first,
-                    );
-                    if (match.languageCode == candidate.languageCode) {
-                      return match;
+            child: CartScope(
+              controller: cartController,
+              child: MaterialApp(
+                title: 'GreenBite',
+                debugShowCheckedModeBanner: false,
+                themeMode: appController.themeMode,
+                theme: AppTheme.buildTheme(
+                  Brightness.light,
+                  primarySeed: appController.primarySeed,
+                ),
+                darkTheme: AppTheme.buildTheme(
+                  Brightness.dark,
+                  primarySeed: appController.primarySeed,
+                ),
+                locale: locale,
+                supportedLocales: const [Locale('en'), Locale('ar')],
+                localizationsDelegates: const [
+                  AppLocalizationsDelegate(),
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                localeListResolutionCallback: (locales, supported) {
+                  if (locale != null) {
+                    return locale;
+                  }
+                  if (locales != null && locales.isNotEmpty) {
+                    for (final candidate in locales) {
+                      final match = supported.firstWhere(
+                        (supportedLocale) =>
+                            supportedLocale.languageCode == candidate.languageCode,
+                        orElse: () => supported.first,
+                      );
+                      if (match.languageCode == candidate.languageCode) {
+                        return match;
+                      }
                     }
                   }
-                }
-                return supported.first;
-              },
-              initialRoute: SplashPage.routeName,
-              onGenerateRoute: _onGenerateRoute,
+                  return supported.first;
+                },
+                initialRoute: SplashPage.routeName,
+                onGenerateRoute: _onGenerateRoute,
+              ),
             ),
           ),
         );
