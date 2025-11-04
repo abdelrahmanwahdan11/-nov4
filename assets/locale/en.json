@@ -22,6 +22,7 @@
   "search_hint": "Search meals, tags, or nutrition",
   "search_empty": "Start typing to discover dishes",
   "search_no_results": "No matches found",
+  "search_suggestions_title": "Suggestions",
   "matched_fields": "Matched fields",
   "field_name": "Name",
   "field_description": "Description",

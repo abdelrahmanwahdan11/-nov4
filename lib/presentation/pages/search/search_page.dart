@@ -9,8 +9,8 @@ import '../../../domain/models/food_item.dart';
 import '../../controllers/app_controller.dart';
 import '../../controllers/content_status.dart';
 import '../../controllers/search_controller.dart';
-import '../../widgets/content_state_view.dart';
 import '../../controllers/tutorial_controller.dart';
+import '../../widgets/content_state_view.dart';
 import '../../widgets/tutorial_overlay.dart';
 import '../item/item_details_page.dart';
 
@@ -56,6 +56,14 @@ class _SearchPageState extends State<SearchPage> {
     if (controller != null) {
       controller.search(value);
     }
+  }
+
+  void _applySuggestion(String suggestion) {
+    _controller.text = suggestion;
+    _controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: suggestion.length),
+    );
+    _onQueryChanged(suggestion);
   }
 
   void _openDetails(FoodItem item) {
@@ -132,102 +140,157 @@ class _SearchPageState extends State<SearchPage> {
                         builder: (context, snapshot) {
                           final query = controller.query.value.trim();
                           final results = snapshot.data ?? <SearchResult>[];
-                          if (query.isEmpty) {
-                            return Center(
-                              child: Text(
-                                context.tr('search_empty'),
-                                style: theme.textTheme.titleMedium,
-                              ),
-                            );
-                          }
-                          if (loading && results.isEmpty) {
-                            return const Center(child: CircularProgressIndicator());
-                          }
-                          if (results.isEmpty) {
-                            return ContentStateView(
-                              icon: Icons.search_off,
-                              title: context.tr('search_no_results'),
-                              message: context.tr('state_empty_search_message'),
-                              primaryAction: TextButton(
-                                onPressed: () {
-                                  _controller.clear();
-                                  controller.search('');
-                                },
-                                child: Text(context.tr('state_reset_search')),
-                              ),
-                            );
-                          }
-                          return ListView.separated(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: results.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final result = results[index];
-                              final item = result.item;
-                              return ListTile(
-                                onTap: () => _openDetails(item),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                tileColor: theme.colorScheme.surfaceVariant.withOpacity(0.4),
-                                leading: ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Image.network(
-                                    item.imageUrl,
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                title: RichText(
-                                  text: TextSpan(
-                                    style: theme.textTheme.titleMedium,
-                                    children: _highlightText(
-                                      item.name,
-                                      query,
-                                      theme.textTheme.titleMedium ??
-                                          const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                                      theme.colorScheme.primary,
-                                    ),
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 4),
-                                    RichText(
-                                      text: TextSpan(
-                                        style: theme.textTheme.bodyMedium
-                                            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                                        children: _highlightText(
-                                          item.description,
-                                          query,
-                                          theme.textTheme.bodyMedium ?? const TextStyle(),
-                                          theme.colorScheme.primary,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
+                          return Column(
+                            children: [
+                              StreamBuilder<List<String>>(
+                                stream: controller.suggestionsStream,
+                                builder: (context, suggestionsSnapshot) {
+                                  final suggestions = suggestionsSnapshot.data ?? <String>[];
+                                  if (suggestions.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        ...item.tags.take(3).map((tag) => _buildTagChip(tag, query, theme)),
                                         Text(
-                                          '${item.kcal} kcal • \\$${item.defaultSize.priceFor(item).toStringAsFixed(2)}',
-                                          style: theme.textTheme.labelMedium,
+                                          context.tr('search_suggestions_title'),
+                                          style: theme.textTheme.labelLarge,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: suggestions
+                                              .map(
+                                                (suggestion) => ActionChip(
+                                                  onPressed: () => _applySuggestion(suggestion),
+                                                  label: Text(suggestion),
+                                                ),
+                                              )
+                                              .toList(),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _formatMatchedFields(result.matchedFields, context),
-                                      style:
-                                          theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),
-                                    ),
-                                  ],
+                                  );
+                                },
+                              ),
+                              Expanded(
+                                child: Builder(
+                                  builder: (context) {
+                                    if (query.isEmpty) {
+                                      return Center(
+                                        child: Text(
+                                          context.tr('search_empty'),
+                                          style: theme.textTheme.titleMedium,
+                                        ),
+                                      );
+                                    }
+                                    if (loading && results.isEmpty) {
+                                      return const Center(child: CircularProgressIndicator());
+                                    }
+                                    if (results.isEmpty) {
+                                      return ContentStateView(
+                                        icon: Icons.search_off,
+                                        title: context.tr('search_no_results'),
+                                        message: context.tr('state_empty_search_message'),
+                                        primaryAction: TextButton(
+                                          onPressed: () {
+                                            _controller.clear();
+                                            controller.search('');
+                                          },
+                                          child: Text(context.tr('state_reset_search')),
+                                        ),
+                                      );
+                                    }
+                                    return ListView.separated(
+                                      padding: const EdgeInsets.all(16),
+                                      itemCount: results.length,
+                                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                                      itemBuilder: (context, index) {
+                                        final result = results[index];
+                                        final item = result.item;
+                                        return ListTile(
+                                          onTap: () => _openDetails(item),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(24),
+                                          ),
+                                          tileColor: theme.colorScheme.surfaceVariant.withOpacity(0.4),
+                                          leading: ClipRRect(
+                                            borderRadius: BorderRadius.circular(16),
+                                            child: Image.network(
+                                              item.imageUrl,
+                                              width: 60,
+                                              height: 60,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          title: RichText(
+                                            text: TextSpan(
+                                              style: theme.textTheme.titleMedium,
+                                              children: _highlightText(
+                                                item.name,
+                                                query,
+                                                theme.textTheme.titleMedium ??
+                                                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                                theme.colorScheme.primary,
+                                              ),
+                                            ),
+                                          ),
+                                          subtitle: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(height: 4),
+                                              RichText(
+                                                text: TextSpan(
+                                                  style: theme.textTheme.bodyMedium
+                                                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                                  children: _highlightText(
+                                                    item.description,
+                                                    query,
+                                                    theme.textTheme.bodyMedium ?? const TextStyle(),
+                                                    theme.colorScheme.primary,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Wrap(
+                                                spacing: 8,
+                                                runSpacing: 8,
+                                                children: [
+                                                  ...item.tags
+                                                      .take(3)
+                                                      .map((tag) => _buildTagChip(tag, query, theme)),
+                                                  RichText(
+                                                    text: TextSpan(
+                                                      style: theme.textTheme.labelMedium,
+                                                      children: _highlightText(
+                                                        _nutritionSummary(item),
+                                                        query,
+                                                        theme.textTheme.labelMedium ?? const TextStyle(),
+                                                        theme.colorScheme.primary,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                _formatMatchedFields(result.matchedFields, context),
+                                                style: theme.textTheme.labelSmall
+                                                    ?.copyWith(color: theme.colorScheme.primary),
+                                              ),
+                                            ],
+                                          ),
+                                          trailing: const Icon(Icons.chevron_right),
+                                        );
+                                      },
+                                    );
+                                  },
                                 ),
-                                trailing: const Icon(Icons.chevron_right),
-                              );
-                            },
+                              ),
+                            ],
                           );
                         },
                       );
@@ -240,6 +303,11 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
     );
+  }
+
+  String _nutritionSummary(FoodItem item) {
+    final price = item.defaultSize.priceFor(item).toStringAsFixed(2);
+    return '${item.kcal} kcal • ${String.fromCharCode(36)}$price';
   }
 
   List<TextSpan> _highlightText(String source, String query, TextStyle baseStyle, Color highlightColor) {
@@ -271,9 +339,18 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildTagChip(String tag, String query, ThemeData theme) {
-    final highlight = tag.toLowerCase().contains(query.toLowerCase());
+    final highlight = query.isNotEmpty && tag.toLowerCase().contains(query.toLowerCase());
+    final baseStyle = theme.textTheme.labelMedium
+            ?.copyWith(color: theme.colorScheme.onSurfaceVariant) ??
+        theme.textTheme.labelMedium ??
+        const TextStyle();
     return Chip(
-      label: Text(tag),
+      label: RichText(
+        text: TextSpan(
+          style: baseStyle,
+          children: _highlightText(tag, query, baseStyle, theme.colorScheme.primary),
+        ),
+      ),
       backgroundColor: highlight
           ? theme.colorScheme.primary.withOpacity(0.12)
           : theme.colorScheme.surfaceVariant,
