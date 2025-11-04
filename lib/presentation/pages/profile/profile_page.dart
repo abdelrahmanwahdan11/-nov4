@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/locale/localization_extension.dart';
-import '../cart/cart_page.dart';
-import '../catalog/catalog_page.dart';
-import '../settings/settings_page.dart';
-import '../item/item_details_page.dart';
+import '../../controllers/auth_controller.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/favorites_controller.dart';
 import '../../controllers/recently_viewed_controller.dart';
 import '../../widgets/food_card.dart';
 import '../../widgets/quick_action_card.dart';
+import '../auth/login_page.dart';
+import '../cart/cart_page.dart';
+import '../catalog/catalog_page.dart';
+import '../item/item_details_page.dart';
+import '../settings/settings_page.dart';
 import '../../../domain/models/food_item.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -17,6 +19,12 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = AuthScope.of(context);
+    final isGuest = auth.isGuest;
+    void openUpgrade() {
+      Navigator.of(context).pushNamed(LoginPage.routeName);
+    }
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -46,28 +54,35 @@ class ProfilePage extends StatelessWidget {
             ],
           ),
         ),
-        body: TabBarView(
+        body: Column(
           children: [
-            const _FavoritesTab(),
-            _ProfilePlaceholder(
-              icon: Icons.location_on_outlined,
-              title: context.tr('profile_addresses_title'),
-              description: context.tr('profile_addresses_placeholder'),
-              primaryActionLabel: context.tr('profile_action_add_address'),
-              onPrimaryTap: () => Navigator.of(context).pushNamed(SettingsPage.routeName),
-              secondaryHint: context.tr('profile_addresses_hint'),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 320),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              child: isGuest
+                  ? _GuestUpgradeBanner(
+                      key: const ValueKey('guest-upgrade-banner'),
+                      onUpgrade: openUpgrade,
+                    )
+                  : const SizedBox.shrink(
+                      key: ValueKey('guest-upgrade-banner-empty'),
+                    ),
             ),
-            _ProfilePlaceholder(
-              icon: Icons.receipt_long_outlined,
-              title: context.tr('profile_orders_title'),
-              description: context.tr('profile_orders_placeholder'),
-              primaryActionLabel: context.tr('profile_action_review_orders'),
-              onPrimaryTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const CartPage(),
-                ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  const _FavoritesTab(),
+                  _AddressesTab(
+                    isGuest: isGuest,
+                    onUpgrade: openUpgrade,
+                  ),
+                  _OrdersTab(
+                    isGuest: isGuest,
+                    onUpgrade: openUpgrade,
+                  ),
+                ],
               ),
-              secondaryHint: context.tr('profile_orders_hint'),
             ),
           ],
         ),
@@ -209,6 +224,158 @@ class _FavoritesTab extends StatelessWidget {
         content: Text('${context.tr('added_to_cart')} ${item.name}'),
         duration: const Duration(seconds: 2),
       ),
+    );
+  }
+}
+
+class _AddressesTab extends StatelessWidget {
+  const _AddressesTab({required this.isGuest, required this.onUpgrade});
+
+  final bool isGuest;
+  final VoidCallback onUpgrade;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isGuest) {
+      return _GuestRestrictedPlaceholder(
+        icon: Icons.location_on_outlined,
+        descriptionKey: 'profile_guest_locked_addresses',
+        onUpgrade: onUpgrade,
+      );
+    }
+    return _ProfilePlaceholder(
+      icon: Icons.location_on_outlined,
+      title: context.tr('profile_addresses_title'),
+      description: context.tr('profile_addresses_placeholder'),
+      primaryActionLabel: context.tr('profile_action_add_address'),
+      onPrimaryTap: () => Navigator.of(context).pushNamed(SettingsPage.routeName),
+      secondaryHint: context.tr('profile_addresses_hint'),
+    );
+  }
+}
+
+class _OrdersTab extends StatelessWidget {
+  const _OrdersTab({required this.isGuest, required this.onUpgrade});
+
+  final bool isGuest;
+  final VoidCallback onUpgrade;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isGuest) {
+      return _GuestRestrictedPlaceholder(
+        icon: Icons.receipt_long_outlined,
+        descriptionKey: 'profile_guest_locked_orders',
+        onUpgrade: onUpgrade,
+      );
+    }
+    return _ProfilePlaceholder(
+      icon: Icons.receipt_long_outlined,
+      title: context.tr('profile_orders_title'),
+      description: context.tr('profile_orders_placeholder'),
+      primaryActionLabel: context.tr('profile_action_review_orders'),
+      onPrimaryTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const CartPage(),
+        ),
+      ),
+      secondaryHint: context.tr('profile_orders_hint'),
+    );
+  }
+}
+
+class _GuestUpgradeBanner extends StatelessWidget {
+  const _GuestUpgradeBanner({required this.onUpgrade, super.key});
+
+  final VoidCallback onUpgrade;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onContainer = theme.colorScheme.onPrimaryContainer;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Card(
+        color: theme.colorScheme.primaryContainer,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.lock_open_rounded,
+                    color: onContainer,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      context.tr('profile_guest_banner_title'),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: onContainer,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                context.tr('profile_guest_banner_body'),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: onContainer.withOpacity(0.9),
+                ),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: onUpgrade,
+                style: FilledButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+                child: Text(context.tr('profile_guest_banner_cta')),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                context.tr('profile_guest_banner_hint'),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: onContainer.withOpacity(0.85),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GuestRestrictedPlaceholder extends StatelessWidget {
+  const _GuestRestrictedPlaceholder({
+    required this.icon,
+    required this.descriptionKey,
+    required this.onUpgrade,
+  });
+
+  final IconData icon;
+  final String descriptionKey;
+  final VoidCallback onUpgrade;
+
+  @override
+  Widget build(BuildContext context) {
+    return _ProfilePlaceholder(
+      icon: icon,
+      title: context.tr('profile_guest_locked_title'),
+      description: context.tr(descriptionKey),
+      primaryActionLabel: context.tr('profile_guest_locked_cta'),
+      onPrimaryTap: onUpgrade,
     );
   }
 }
