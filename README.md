@@ -25,10 +25,11 @@ This repository disallows committing binary blobs. You can verify that no
 binary files slipped in by running `python tool/check_no_binary.py`, which
 fails the build if any tracked file cannot be decoded as UTF-8 text.
 
-Web favicon and PWA icons use remote placeholder URLs so no binary art is
-checked into the repository. The `.gitignore` also excludes the default
-`flutter create` web icon outputs (`web/favicon.png` and `web/icons/`) to
-prevent accidental binary commits when regenerating the web scaffold.
+Web favicon and PWA icons are provided as a lightweight SVG (`web/icon.svg`)
+so no binary art is checked into the repository. The `.gitignore` also
+excludes the default `flutter create` web icon outputs (`web/favicon.png`
+and `web/icons/`) to prevent accidental binary commits when regenerating
+the web scaffold.
 
 ## Notes
 
