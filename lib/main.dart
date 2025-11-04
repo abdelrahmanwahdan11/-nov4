@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:greenly/core/state/simple_provider.dart';
 
-import 'core/constants/app_constants.dart';
+import 'core/storage/app_preferences.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/localization/locale_controller.dart';
 import 'core/routing/app_router.dart';
@@ -15,45 +14,53 @@ import 'ui/controllers/tutorial_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
+  final prefs = await AppPreferences.getInstance();
   runApp(GreenlyApp(prefs: prefs));
 }
 
 class GreenlyApp extends StatelessWidget {
   const GreenlyApp({super.key, required this.prefs});
 
-  final SharedPreferences prefs;
+  final AppPreferences prefs;
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeController(prefs)),
-        ChangeNotifierProvider(create: (_) => LocaleController(prefs)),
-        ChangeNotifierProvider(create: (_) => SessionController(prefs)),
-        ChangeNotifierProvider(create: (_) => AuthController()),
-        ChangeNotifierProvider(create: (_) => CartController()),
-        ChangeNotifierProvider(create: (_) => TutorialController(prefs)),
-      ],
-      child: Consumer2<ThemeController, LocaleController>(
-        builder: (context, themeController, localeController, _) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'Greenly',
-            locale: localeController.locale,
-            supportedLocales: AppLocalizations.supportedLocales,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            themeMode: themeController.themeMode,
-            theme: themeController.buildTheme(Brightness.light, localeController.locale),
-            darkTheme: themeController.buildTheme(Brightness.dark, localeController.locale),
-            onGenerateRoute: onGenerateRoute,
-          );
-        },
+    return ChangeNotifierProvider(
+      create: (_) => ThemeController(prefs),
+      child: ChangeNotifierProvider(
+        create: (_) => LocaleController(prefs),
+        child: ChangeNotifierProvider(
+          create: (_) => SessionController(prefs),
+          child: ChangeNotifierProvider(
+            create: (_) => AuthController(),
+            child: ChangeNotifierProvider(
+              create: (_) => CartController(),
+              child: ChangeNotifierProvider(
+                create: (_) => TutorialController(prefs),
+                child: Consumer2<ThemeController, LocaleController>(
+                  builder: (context, themeController, localeController, _) {
+                    return MaterialApp(
+                      debugShowCheckedModeBanner: false,
+                      title: 'Greenly',
+                      locale: localeController.locale,
+                      supportedLocales: AppLocalizations.supportedLocales,
+                      localizationsDelegates: const [
+                        AppLocalizations.delegate,
+                        GlobalMaterialLocalizations.delegate,
+                        GlobalWidgetsLocalizations.delegate,
+                        GlobalCupertinoLocalizations.delegate,
+                      ],
+                      themeMode: themeController.themeMode,
+                      theme: themeController.buildTheme(Brightness.light, localeController.locale),
+                      darkTheme: themeController.buildTheme(Brightness.dark, localeController.locale),
+                      onGenerateRoute: onGenerateRoute,
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

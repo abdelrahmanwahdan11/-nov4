@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
+import '../../widgets/simple_flip_card.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/localization/app_localizations.dart';

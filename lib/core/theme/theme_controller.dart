@@ -1,9 +1,7 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/app_constants.dart';
+import '../storage/app_preferences.dart';
 
 class ThemeController extends ChangeNotifier {
   ThemeController(this._prefs) {
@@ -20,7 +18,7 @@ class ThemeController extends ChangeNotifier {
     }
   }
 
-  final SharedPreferences _prefs;
+  final AppPreferences _prefs;
   ThemeMode _themeMode = ThemeMode.system;
   Color _seedColor = AppConstants.defaultSeedColor;
 
@@ -50,11 +48,6 @@ class ThemeController extends ChangeNotifier {
   }
 
   ThemeData buildTheme(Brightness brightness, Locale locale) {
-    final typography = Typography.material2021(platform: TargetPlatform.android);
-    final isArabic = locale.languageCode == 'ar';
-    TextTheme withLocalizedFont(TextTheme baseTheme) =>
-        isArabic ? GoogleFonts.cairoTextTheme(baseTheme) : GoogleFonts.poppinsTextTheme(baseTheme);
-
     final base = ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(seedColor: _seedColor, brightness: brightness),
@@ -62,20 +55,12 @@ class ThemeController extends ChangeNotifier {
     );
 
     return base.copyWith(
-      fontFamily: isArabic ? GoogleFonts.cairo().fontFamily : GoogleFonts.poppins().fontFamily,
-      textTheme: withLocalizedFont(base.textTheme),
-      primaryTextTheme: withLocalizedFont(base.primaryTextTheme),
-      typography: typography.copyWith(
-        black: withLocalizedFont(typography.black),
-        white: withLocalizedFont(typography.white),
-        englishLike: withLocalizedFont(typography.englishLike),
-        dense: withLocalizedFont(typography.dense),
-        tall: withLocalizedFont(typography.tall),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
       ),
-      pageTransitionsTheme: const PageTransitionsTheme(builders: {
-        TargetPlatform.android: SharedAxisPageTransitionsBuilder(transitionType: SharedAxisTransitionType.horizontal),
-        TargetPlatform.iOS: SharedAxisPageTransitionsBuilder(transitionType: SharedAxisTransitionType.horizontal),
-      }),
     );
   }
 }

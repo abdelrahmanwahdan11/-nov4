@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/app_constants.dart';
+import '../storage/app_preferences.dart';
 
 class LocaleController extends ChangeNotifier {
   LocaleController(this._prefs) {
@@ -11,7 +11,7 @@ class LocaleController extends ChangeNotifier {
     }
   }
 
-  final SharedPreferences _prefs;
+  final AppPreferences _prefs;
   Locale _locale = AppConstants.defaultLocale;
 
   Locale get locale => _locale;

@@ -2,9 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../core/constants/app_constants.dart';
+import '../../core/storage/app_preferences.dart';
 import '../models/car_item.dart';
 import 'search_service.dart';
 
@@ -37,7 +36,7 @@ class CarRepositoryLocal {
       await Future<void>.delayed(const Duration(milliseconds: 100));
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await AppPreferences.getInstance();
     final isSlow = prefs.getBool(AppConstants.sharedPrefsSlowNetworkKey) ?? false;
     final base = isSlow ? 900 : 450;
     final jitter = isSlow ? 400 : 250;

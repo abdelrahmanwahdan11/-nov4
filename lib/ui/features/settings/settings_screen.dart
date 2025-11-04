@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:greenly/core/state/simple_provider.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -8,6 +7,7 @@ import '../../../core/localization/locale_controller.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../controllers/tutorial_controller.dart';
 import '../../widgets/app_scaffold.dart';
+import '../../../core/storage/app_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -26,7 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await AppPreferences.getInstance();
     if (!mounted) return;
     setState(() {
       _slowNetwork = prefs.getBool(AppConstants.sharedPrefsSlowNetworkKey) ?? false;
@@ -34,7 +34,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _toggleSlow(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await AppPreferences.getInstance();
     await prefs.setBool(AppConstants.sharedPrefsSlowNetworkKey, value);
     if (!mounted) return;
     setState(() => _slowNetwork = value);

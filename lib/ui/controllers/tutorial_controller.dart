@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/constants/app_constants.dart';
+import '../../core/storage/app_preferences.dart';
 
 class TutorialController extends ChangeNotifier {
   TutorialController(this._prefs) {
@@ -9,7 +9,7 @@ class TutorialController extends ChangeNotifier {
     _catalogShown = _prefs.getBool(AppConstants.sharedPrefsTutorialCatalogKey) ?? false;
   }
 
-  final SharedPreferences _prefs;
+  final AppPreferences _prefs;
   late bool _homeShown;
   late bool _catalogShown;
 

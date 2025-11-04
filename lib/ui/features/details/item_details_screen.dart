@@ -1,11 +1,11 @@
-import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:greenly/core/state/simple_provider.dart';
 
 import '../../../data/models/food_item.dart';
 import '../../../data/repositories_local/food_repository_local.dart';
 import '../../controllers/cart_controller.dart';
 import '../../widgets/skeleton_base.dart';
+import '../../widgets/simple_flip_card.dart';
 
 class ItemDetailsScreen extends StatefulWidget {
   const ItemDetailsScreen({super.key, required this.itemId});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_3d_controller/flutter_3d_controller.dart';
+import '../../widgets/simple_3d_viewer.dart';
 
 import '../../../core/localization/app_localizations.dart';
 import '../../../data/models/car_item.dart';

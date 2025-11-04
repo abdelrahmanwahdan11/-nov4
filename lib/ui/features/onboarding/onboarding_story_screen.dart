@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:greenly/core/state/simple_provider.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/routing/app_router.dart';
 import '../../controllers/session_controller.dart';
+import '../../../core/storage/app_preferences.dart';
 
 class OnboardingStoryScreen extends StatefulWidget {
   const OnboardingStoryScreen({super.key});
@@ -46,7 +46,7 @@ class _OnboardingStoryScreenState extends State<OnboardingStoryScreen> {
   }
 
   void _setCompleted() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await AppPreferences.getInstance();
     await prefs.setBool(AppConstants.sharedPrefsFirstRunKey, true);
   }
 

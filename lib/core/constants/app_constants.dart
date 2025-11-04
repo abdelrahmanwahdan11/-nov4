@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AppConstants {
   const AppConstants._();
 
-  static const defaultSeedColor = Color(0xFF4CAF50);
+  static const defaultSeedColor = Color(0xFF25A18E);
   static const supportedLocales = [Locale('en'), Locale('ar')];
   static const defaultLocale = Locale('en');
 

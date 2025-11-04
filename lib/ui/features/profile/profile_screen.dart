@@ -1,9 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../core/constants/app_constants.dart';
+import '../../../core/storage/app_preferences.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../widgets/app_scaffold.dart';
 
@@ -21,7 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _phoneController = TextEditingController();
   final ValueNotifier<List<_ProfileAddress>> _addressesNotifier = ValueNotifier<List<_ProfileAddress>>(<_ProfileAddress>[]);
 
-  late SharedPreferences _prefs;
+  late AppPreferences _prefs;
   bool _isLoading = true;
   bool _defaultAddressScheduled = false;
 
@@ -32,7 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _load() async {
-    _prefs = await SharedPreferences.getInstance();
+    _prefs = await AppPreferences.getInstance();
     _nameController.text =
         _prefs.getString(AppConstants.sharedPrefsProfileNameKey) ?? 'Greenly User';
     _emailController.text =

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:iconly/iconly.dart';
-import 'package:provider/provider.dart';
+import 'package:greenly/core/icons/iconly.dart';
+import 'package:greenly/core/state/simple_provider.dart';
 
 import '../../core/localization/app_localizations.dart';
 import '../../core/routing/app_router.dart';
