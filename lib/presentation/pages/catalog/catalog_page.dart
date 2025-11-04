@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/locale/localization_extension.dart';
 import '../../../core/theme/theme_tokens.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../domain/models/catalog_filter_preset.dart';
 import '../../../domain/models/food_item.dart';
 import '../../controllers/app_controller.dart';
 import '../../controllers/cart_controller.dart';
@@ -376,16 +377,97 @@ class _FiltersPanel extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(context.tr('filters_title'), style: theme.textTheme.titleMedium),
-              const SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.tr('filters_title'),
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => _handleSavePreset(context),
+                    icon: const Icon(Icons.bookmark_add_outlined),
+                    label: Text(context.tr('filters_save_preset')),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ValueListenableBuilder<List<CatalogFilterPreset>>(
+                valueListenable: controller.pinnedPresets,
+                builder: (context, pinned, _) {
+                  if (pinned.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('filters_pinned_presets'),
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: pinned
+                            .map(
+                              (preset) => ActionChip(
+                                avatar: const Icon(Icons.push_pin_outlined, size: 18),
+                                label: Text(preset.name),
+                                onPressed: () => _handleApplyPreset(context, preset),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                },
+              ),
+              ValueListenableBuilder<List<CatalogFilterPreset>>(
+                valueListenable: controller.presets,
+                builder: (context, presets, _) {
+                  if (presets.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        context.tr('filters_no_presets'),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    );
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('filters_saved_presets'),
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      ...presets.map(
+                        (preset) => _PresetTile(
+                          preset: preset,
+                          onApply: () => _handleApplyPreset(context, preset),
+                          onDelete: () => _handleDeletePreset(context, preset),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                },
+              ),
+              const Divider(height: 32),
               _RangeTile(
                 title: context.tr('filters_price'),
                 range: filters.priceRange,
                 min: controller.priceBounds.start,
                 max: controller.priceBounds.end,
                 labels: RangeLabels(
-                  '\\$${filters.priceRange.start.toStringAsFixed(0)}',
-                  '\\$${filters.priceRange.end.toStringAsFixed(0)}',
+                  '\$${filters.priceRange.start.toStringAsFixed(0)}',
+                  '\$${filters.priceRange.end.toStringAsFixed(0)}',
                 ),
                 onChanged: controller.updatePrice,
               ),
@@ -439,6 +521,172 @@ class _FiltersPanel extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Future<void> _handleSavePreset(BuildContext context) async {
+    final name = await _promptPresetName(context);
+    if (name == null || name.trim().isEmpty) {
+      return;
+    }
+    final result = await controller.savePreset(name);
+    if (!context.mounted) {
+      return;
+    }
+    final key = result == PresetSaveResult.created
+        ? 'filters_preset_saved'
+        : 'filters_preset_updated';
+    _showSnackBar(context, context.tr(key));
+  }
+
+  Future<void> _handleApplyPreset(
+    BuildContext context,
+    CatalogFilterPreset preset,
+  ) async {
+    final applied = await controller.applyPreset(preset.id);
+    if (!context.mounted || !applied) {
+      return;
+    }
+    _showSnackBar(context, context.tr('filters_preset_applied'));
+  }
+
+  Future<void> _handleDeletePreset(
+    BuildContext context,
+    CatalogFilterPreset preset,
+  ) async {
+    final confirm = await _confirmDelete(context, preset);
+    if (!confirm) {
+      return;
+    }
+    final deleted = await controller.deletePreset(preset.id);
+    if (!context.mounted || !deleted) {
+      return;
+    }
+    _showSnackBar(context, context.tr('filters_preset_deleted'));
+  }
+
+  Future<String?> _promptPresetName(BuildContext context) {
+    final textController = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(dialogContext.tr('filters_save_preset')),
+          content: TextField(
+            controller: textController,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: dialogContext.tr('filters_preset_name_label'),
+              hintText: dialogContext.tr('filters_preset_name_hint'),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(dialogContext.tr('filters_preset_cancel')),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(textController.text.trim());
+              },
+              child: Text(dialogContext.tr('filters_preset_create')),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _confirmDelete(
+    BuildContext context,
+    CatalogFilterPreset preset,
+  ) async {
+    return showDialog<bool>(
+          context: context,
+          builder: (dialogContext) {
+            return AlertDialog(
+              title: Text(dialogContext.tr('filters_preset_delete_confirm_title')),
+              content: Text(dialogContext.tr('filters_preset_delete_confirm_message')),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: Text(dialogContext.tr('filters_preset_delete_confirm_cancel')),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                  child: Text(dialogContext.tr('filters_preset_delete_confirm_confirm')),
+                ),
+              ],
+            );
+          },
+        ).then((value) => value ?? false);
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+}
+
+class _PresetTile extends StatelessWidget {
+  const _PresetTile({
+    required this.preset,
+    required this.onApply,
+    required this.onDelete,
+  });
+
+  final CatalogFilterPreset preset;
+  final VoidCallback onApply;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final filters = preset.filters;
+    final price = '\$${filters.priceRange.start.toStringAsFixed(0)} – '
+        '\$${filters.priceRange.end.toStringAsFixed(0)}';
+    final weight = '${filters.weightRange.start.toStringAsFixed(0)} g – '
+        '${filters.weightRange.end.toStringAsFixed(0)} g';
+    final kcal = '${filters.kcalRange.start.toStringAsFixed(0)} kcal – '
+        '${filters.kcalRange.end.toStringAsFixed(0)} kcal';
+    final tags = filters.selectedTags;
+    final tagLabel = tags.isEmpty
+        ? context.tr('filters_tags_any')
+        : tags.join(', ');
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        title: Text(preset.name),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${context.tr('filters_price')}: $price'),
+              Text('${context.tr('filters_weight')}: $weight'),
+              Text('${context.tr('filters_kcal')}: $kcal'),
+              Text('${context.tr('filters_tags')}: $tagLabel'),
+            ],
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: onApply,
+              icon: const Icon(Icons.play_arrow_rounded),
+              tooltip: context.tr('filters_preset_apply'),
+            ),
+            IconButton(
+              onPressed: onDelete,
+              icon: const Icon(Icons.delete_outline),
+              tooltip: context.tr('filters_preset_delete'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

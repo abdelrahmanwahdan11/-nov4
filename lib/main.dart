@@ -13,6 +13,7 @@ import 'presentation/controllers/recently_viewed_controller.dart';
 import 'data/local/cart_local_data_source.dart';
 import 'data/local/food_local_data_source.dart';
 import 'data/local/car_local_data_source.dart';
+import 'data/local/catalog_presets_local_data_source.dart';
 import 'data/local/favorites_local_data_source.dart';
 import 'data/local/recently_viewed_local_data_source.dart';
 import 'domain/models/food_item.dart';
@@ -53,6 +54,7 @@ Future<void> main() async {
   );
   await compareController.load();
   final tutorialController = TutorialController(appController: appController);
+  final catalogPresetsDataSource = CatalogPresetsLocalDataSource();
   runApp(
     GreenBiteApp(
       appController: appController,
@@ -63,6 +65,7 @@ Future<void> main() async {
       favoritesController: favoritesController,
       recentlyViewedController: recentlyViewedController,
       foodDataSource: foodDataSource,
+      catalogPresetsDataSource: catalogPresetsDataSource,
     ),
   );
 }
@@ -78,6 +81,7 @@ class GreenBiteApp extends StatelessWidget {
     required this.favoritesController,
     required this.recentlyViewedController,
     required this.foodDataSource,
+    required this.catalogPresetsDataSource,
   });
 
   final AppController appController;
@@ -88,6 +92,7 @@ class GreenBiteApp extends StatelessWidget {
   final FavoritesController favoritesController;
   final RecentlyViewedController recentlyViewedController;
   final FoodLocalDataSource foodDataSource;
+  final CatalogPresetsLocalDataSource catalogPresetsDataSource;
 
   Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -138,6 +143,7 @@ class GreenBiteApp extends StatelessWidget {
               connectionOverride: appController.connectionOverride,
               layoutMode: appController.catalogGridMode,
               onLayoutModeChanged: appController.setCatalogGridMode,
+              presetsDataSource: catalogPresetsDataSource,
             ),
           ),
           settings: settings,

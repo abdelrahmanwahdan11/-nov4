@@ -28,6 +28,7 @@ class TutorialController extends ChangeNotifier {
   ];
 
   bool _isActive = false;
+  final Set<TutorialTarget> _visitedTargets = <TutorialTarget>{};
 
   bool get isActive => _isActive;
 
@@ -64,9 +65,9 @@ class TutorialController extends ChangeNotifier {
     if (!force && !appController.firstRun) {
       return;
     }
+    _visitedTargets.clear();
     _isActive = true;
-    currentTarget.value = _sequence.first;
-    notifyListeners();
+    _selectTarget(_sequence.first);
   }
 
   void next() {
@@ -82,12 +83,17 @@ class TutorialController extends ChangeNotifier {
       complete();
       return;
     }
-    currentTarget.value = _sequence[index + 1];
-    notifyListeners();
+    _selectTarget(_sequence[index + 1]);
   }
 
   void skip() {
-    complete();
+    if (!_isActive) {
+      return;
+    }
+    _isActive = false;
+    currentTarget.value = null;
+    _visitedTargets.clear();
+    notifyListeners();
   }
 
   Future<void> complete() async {
@@ -96,7 +102,11 @@ class TutorialController extends ChangeNotifier {
     }
     _isActive = false;
     currentTarget.value = null;
-    await appController.markFirstRunComplete();
+    final hasSeenAll = _sequence.every(_visitedTargets.contains);
+    if (hasSeenAll) {
+      await appController.markFirstRunComplete();
+    }
+    _visitedTargets.clear();
     notifyListeners();
   }
 
@@ -112,6 +122,12 @@ class TutorialController extends ChangeNotifier {
   void dispose() {
     currentTarget.dispose();
     super.dispose();
+  }
+
+  void _selectTarget(TutorialTarget target) {
+    currentTarget.value = target;
+    _visitedTargets.add(target);
+    notifyListeners();
   }
 }
 
