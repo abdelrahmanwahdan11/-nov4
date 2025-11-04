@@ -49,8 +49,8 @@ class GreenlyApp extends StatelessWidget {
               GlobalCupertinoLocalizations.delegate,
             ],
             themeMode: themeController.themeMode,
-            theme: themeController.buildTheme(Brightness.light),
-            darkTheme: themeController.buildTheme(Brightness.dark),
+            theme: themeController.buildTheme(Brightness.light, localeController.locale),
+            darkTheme: themeController.buildTheme(Brightness.dark, localeController.locale),
             onGenerateRoute: onGenerateRoute,
           );
         },

@@ -49,18 +49,29 @@ class ThemeController extends ChangeNotifier {
     notifyListeners();
   }
 
-  ThemeData buildTheme(Brightness brightness) {
+  ThemeData buildTheme(Brightness brightness, Locale locale) {
+    final typography = Typography.material2021(platform: TargetPlatform.android);
+    final isArabic = locale.languageCode == 'ar';
+    TextTheme withLocalizedFont(TextTheme baseTheme) =>
+        isArabic ? GoogleFonts.cairoTextTheme(baseTheme) : GoogleFonts.poppinsTextTheme(baseTheme);
+
     final base = ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(seedColor: _seedColor, brightness: brightness),
-      fontFamily: brightness == Brightness.dark ? GoogleFonts.poppins().fontFamily : GoogleFonts.cairo().fontFamily,
+      visualDensity: VisualDensity.adaptivePlatformDensity,
     );
 
-    final textTheme = GoogleFonts.poppinsTextTheme(base.textTheme);
-    final arabicTheme = GoogleFonts.cairoTextTheme(base.textTheme);
-
     return base.copyWith(
-      textTheme: brightness == Brightness.dark ? textTheme : arabicTheme,
+      fontFamily: isArabic ? GoogleFonts.cairo().fontFamily : GoogleFonts.poppins().fontFamily,
+      textTheme: withLocalizedFont(base.textTheme),
+      primaryTextTheme: withLocalizedFont(base.primaryTextTheme),
+      typography: typography.copyWith(
+        black: withLocalizedFont(typography.black),
+        white: withLocalizedFont(typography.white),
+        englishLike: withLocalizedFont(typography.englishLike),
+        dense: withLocalizedFont(typography.dense),
+        tall: withLocalizedFont(typography.tall),
+      ),
       pageTransitionsTheme: const PageTransitionsTheme(builders: {
         TargetPlatform.android: SharedAxisPageTransitionsBuilder(transitionType: SharedAxisTransitionType.horizontal),
         TargetPlatform.iOS: SharedAxisPageTransitionsBuilder(transitionType: SharedAxisTransitionType.horizontal),
