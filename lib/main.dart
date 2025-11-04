@@ -10,12 +10,14 @@ import 'presentation/controllers/compare_controller.dart';
 import 'presentation/controllers/tutorial_controller.dart';
 import 'presentation/controllers/favorites_controller.dart';
 import 'presentation/controllers/recently_viewed_controller.dart';
+import 'presentation/controllers/meal_planner_controller.dart';
 import 'data/local/cart_local_data_source.dart';
 import 'data/local/food_local_data_source.dart';
 import 'data/local/car_local_data_source.dart';
 import 'data/local/catalog_presets_local_data_source.dart';
 import 'data/local/favorites_local_data_source.dart';
 import 'data/local/recently_viewed_local_data_source.dart';
+import 'data/local/meal_plan_local_data_source.dart';
 import 'domain/models/food_item.dart';
 import 'presentation/pages/auth/forgot_password_page.dart';
 import 'presentation/pages/auth/login_page.dart';
@@ -27,6 +29,7 @@ import 'presentation/pages/onboarding/onboarding_page.dart';
 import 'presentation/pages/settings/settings_page.dart';
 import 'presentation/pages/splash/splash_page.dart';
 import 'presentation/pages/compare/compare_cars_page.dart';
+import 'presentation/pages/meal_planner/meal_planner_page.dart';
 import 'presentation/widgets/tutorial_overlay.dart';
 
 Future<void> main() async {
@@ -55,6 +58,11 @@ Future<void> main() async {
   await compareController.load();
   final tutorialController = TutorialController(appController: appController);
   final catalogPresetsDataSource = CatalogPresetsLocalDataSource();
+  final mealPlannerController = MealPlannerController(
+    dataSource: foodDataSource,
+    localDataSource: MealPlanLocalDataSource(),
+  );
+  await mealPlannerController.initialize();
   runApp(
     GreenBiteApp(
       appController: appController,
@@ -66,6 +74,7 @@ Future<void> main() async {
       recentlyViewedController: recentlyViewedController,
       foodDataSource: foodDataSource,
       catalogPresetsDataSource: catalogPresetsDataSource,
+      mealPlannerController: mealPlannerController,
     ),
   );
 }
@@ -82,6 +91,7 @@ class GreenBiteApp extends StatelessWidget {
     required this.recentlyViewedController,
     required this.foodDataSource,
     required this.catalogPresetsDataSource,
+    required this.mealPlannerController,
   });
 
   final AppController appController;
@@ -93,6 +103,7 @@ class GreenBiteApp extends StatelessWidget {
   final RecentlyViewedController recentlyViewedController;
   final FoodLocalDataSource foodDataSource;
   final CatalogPresetsLocalDataSource catalogPresetsDataSource;
+  final MealPlannerController mealPlannerController;
 
   Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -169,6 +180,11 @@ class GreenBiteApp extends StatelessWidget {
           builder: (_) => const CompareCarsPage(),
           settings: settings,
         );
+      case MealPlannerPage.routeName:
+        return MaterialPageRoute<void>(
+          builder: (_) => const MealPlannerPage(),
+          settings: settings,
+        );
       default:
         return null;
     }
@@ -195,60 +211,62 @@ class GreenBiteApp extends StatelessWidget {
                     controller: compareController,
                     child: TutorialScope(
                       controller: tutorialController,
-                      child: MaterialApp(
-                    title: 'GreenBite',
-                    debugShowCheckedModeBanner: false,
-                    themeMode: appController.themeMode,
-                    theme: AppTheme.buildTheme(
-                      Brightness.light,
-                      primarySeed: appController.primarySeed,
-                      density: appController.contentDensity.value,
-                    ),
-                    darkTheme: AppTheme.buildTheme(
-                      Brightness.dark,
-                      primarySeed: appController.primarySeed,
-                      density: appController.contentDensity.value,
-                    ),
-                    locale: locale,
-                    supportedLocales: const [Locale('en'), Locale('ar')],
-                    localizationsDelegates: const [
-                      AppLocalizationsDelegate(),
-                      GlobalWidgetsLocalizations.delegate,
-                      GlobalMaterialLocalizations.delegate,
-                      GlobalCupertinoLocalizations.delegate,
-                    ],
-                    localeListResolutionCallback: (locales, supported) {
-                      if (locale != null) {
-                        return locale;
-                      }
-                      if (locales != null && locales.isNotEmpty) {
-                        for (final candidate in locales) {
-                          final match = supported.firstWhere(
-                            (supportedLocale) =>
-                                supportedLocale.languageCode == candidate.languageCode,
-                            orElse: () => supported.first,
-                          );
-                          if (match.languageCode == candidate.languageCode) {
-                            return match;
-                          }
-                        }
-                      }
-                      return supported.first;
-                    },
-                    builder: (context, child) {
-                      if (child == null) {
-                        return const SizedBox.shrink();
-                      }
-                      return TutorialOverlay(child: child);
-                    },
-                    initialRoute: SplashPage.routeName,
-                    onGenerateRoute: _onGenerateRoute,
+                      child: MealPlannerScope(
+                        controller: mealPlannerController,
+                        child: MaterialApp(
+                          title: 'GreenBite',
+                          debugShowCheckedModeBanner: false,
+                          themeMode: appController.themeMode,
+                          theme: AppTheme.buildTheme(
+                            Brightness.light,
+                            primarySeed: appController.primarySeed,
+                            density: appController.contentDensity.value,
+                          ),
+                          darkTheme: AppTheme.buildTheme(
+                            Brightness.dark,
+                            primarySeed: appController.primarySeed,
+                            density: appController.contentDensity.value,
+                          ),
+                          locale: locale,
+                          supportedLocales: const [Locale('en'), Locale('ar')],
+                          localizationsDelegates: const [
+                            AppLocalizationsDelegate(),
+                            GlobalWidgetsLocalizations.delegate,
+                            GlobalMaterialLocalizations.delegate,
+                            GlobalCupertinoLocalizations.delegate,
+                          ],
+                          localeListResolutionCallback: (locales, supported) {
+                            if (locale != null) {
+                              return locale;
+                            }
+                            if (locales != null && locales.isNotEmpty) {
+                              for (final candidate in locales) {
+                                final match = supported.firstWhere(
+                                  (supportedLocale) =>
+                                      supportedLocale.languageCode == candidate.languageCode,
+                                  orElse: () => supported.first,
+                                );
+                                if (match.languageCode == candidate.languageCode) {
+                                  return match;
+                                }
+                              }
+                            }
+                            return supported.first;
+                          },
+                          builder: (context, child) {
+                            if (child == null) {
+                              return const SizedBox.shrink();
+                            }
+                            return TutorialOverlay(child: child);
+                          },
+                          initialRoute: SplashPage.routeName,
+                          onGenerateRoute: _onGenerateRoute,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
           ),
         );
       },

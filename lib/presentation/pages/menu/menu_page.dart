@@ -5,6 +5,7 @@ import '../../../core/locale/localization_extension.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../data/local/food_local_data_source.dart';
 import '../../../domain/models/food_item.dart';
+import '../../../domain/models/meal_plan.dart';
 import '../../controllers/app_controller.dart';
 import '../../controllers/catalog_controller.dart';
 import '../../controllers/content_status.dart';
@@ -13,12 +14,14 @@ import '../../controllers/favorites_controller.dart';
 import '../../controllers/home_collections_controller.dart';
 import '../../controllers/recently_viewed_controller.dart';
 import '../../controllers/tutorial_controller.dart';
+import '../../controllers/meal_planner_controller.dart';
 import '../../widgets/content_state_view.dart';
 import '../../widgets/food_card.dart';
 import '../../widgets/quick_action_card.dart';
 import '../catalog/catalog_page.dart';
 import '../item/item_details_page.dart';
 import '../compare/compare_cars_page.dart';
+import '../meal_planner/meal_planner_page.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -73,6 +76,71 @@ class _CompareCarsHighlight extends StatelessWidget {
   }
 }
 
+class _MealPlannerHighlight extends StatelessWidget {
+  const _MealPlannerHighlight({required this.onPressed, this.controller});
+
+  final VoidCallback onPressed;
+  final MealPlannerController? controller;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget buildCard(int plannedMeals) {
+      final theme = Theme.of(context);
+      final colorScheme = theme.colorScheme;
+      final subtitle = plannedMeals > 0
+          ? context.tr('meal_planner_cta_summary', params: <String, dynamic>{'count': plannedMeals})
+          : context.tr('meal_planner_cta_desc');
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primary.withOpacity(0.18),
+              colorScheme.primary.withOpacity(0.08),
+            ],
+          ),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.tr('meal_planner_cta_title'),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: onPressed,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
+              child: Text(context.tr('meal_planner_cta_button')),
+            ),
+          ],
+        ),
+      ).animate().fadeIn(duration: const Duration(milliseconds: 360));
+    }
+
+    final controller = this.controller;
+    if (controller == null) {
+      return buildCard(0);
+    }
+
+    return ValueListenableBuilder<Map<MealDay, List<MealPlanEntry>>>(
+      valueListenable: controller.days,
+      builder: (context, plan, _) {
+        final plannedMeals = plan.values.fold<int>(0, (acc, items) => acc + items.length);
+        return buildCard(plannedMeals);
+      },
+    );
+  }
+}
+
 class _MenuPageState extends State<MenuPage> {
   CatalogController? _controller;
   final ValueNotifier<String?> _selectedTag = ValueNotifier<String?>(null);
@@ -80,6 +148,7 @@ class _MenuPageState extends State<MenuPage> {
   FavoritesController? _favoritesController;
   RecentlyViewedController? _recentlyViewedController;
   HomeCollectionsController? _collectionsController;
+  MealPlannerController? _mealPlannerController;
   late final FoodLocalDataSource _foodDataSource = FoodLocalDataSource();
 
   CatalogController get _catalogController => _controller!;
@@ -110,6 +179,7 @@ class _MenuPageState extends State<MenuPage> {
       dataSource: _foodDataSource,
       connectionOverride: appController.connectionOverride,
     );
+    _mealPlannerController ??= MealPlannerScope.maybeOf(context);
   }
 
   void _openCatalog() {
@@ -209,6 +279,17 @@ class _MenuPageState extends State<MenuPage> {
                         );
                       },
                     );
+                  },
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: padding.add(const EdgeInsets.symmetric(vertical: 8)),
+                child: _MealPlannerHighlight(
+                  controller: _mealPlannerController,
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(MealPlannerPage.routeName);
                   },
                 ),
               ),
