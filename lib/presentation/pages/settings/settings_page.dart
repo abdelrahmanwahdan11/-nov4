@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../core/locale/localization_extension.dart';
 import '../../../core/theme/theme_tokens.dart';
 import '../../controllers/app_controller.dart';
+import '../../controllers/tutorial_controller.dart';
+import '../../widgets/tutorial_overlay.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, required this.controller});
@@ -56,6 +58,28 @@ class _SettingsPageState extends State<SettingsPage> {
       body: AnimatedBuilder(
         animation: controller,
         builder: (context, _) {
+          final tutorialController = TutorialScope.maybeOf(context);
+
+          final themeTiles = ThemeMode.values.map((mode) {
+            Widget tile = RadioListTile<ThemeMode>(
+              value: mode,
+              groupValue: controller.themeMode,
+              onChanged: (value) {
+                if (value != null) {
+                  controller.setThemeMode(value);
+                }
+              },
+              title: Text(_labelForThemeMode(context, mode)),
+            );
+            if (mode == ThemeMode.dark) {
+              tile = TutorialTargetAnchor(
+                target: TutorialTarget.darkToggle,
+                child: tile,
+              );
+            }
+            return tile;
+          }).toList();
+
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -64,18 +88,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
-              ...ThemeMode.values.map(
-                (mode) => RadioListTile<ThemeMode>(
-                  value: mode,
-                  groupValue: controller.themeMode,
-                  onChanged: (value) {
-                    if (value != null) {
-                      controller.setThemeMode(value);
-                    }
-                  },
-                  title: Text(_labelForThemeMode(context, mode)),
-                ),
-              ),
+              ...themeTiles,
               const SizedBox(height: 16),
               Text(
                 context.tr('settings_language_section'),
@@ -165,10 +178,14 @@ class _SettingsPageState extends State<SettingsPage> {
                               ],
                             ),
                           ),
-                          FilledButton.tonalIcon(
-                            onPressed: () => _openColorPicker(context),
-                            icon: const Icon(Icons.palette_outlined),
-                            label: Text(context.tr('settings_color_picker_cta')),
+                          TutorialTargetAnchor(
+                            target: TutorialTarget.colorPicker,
+                            child: FilledButton.tonalIcon(
+                              onPressed: () => _openColorPicker(context),
+                              icon: const Icon(Icons.palette_outlined),
+                              label:
+                                  Text(context.tr('settings_color_picker_cta')),
+                            ),
                           ),
                         ],
                       ),
@@ -176,6 +193,31 @@ class _SettingsPageState extends State<SettingsPage> {
                   );
                 },
               ),
+              if (tutorialController != null) ...[
+                const SizedBox(height: 24),
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.refresh),
+                    title:
+                        Text(context.tr('settings_tutorial_restart_title')),
+                    subtitle: Text(
+                      context.tr('settings_tutorial_restart_subtitle'),
+                    ),
+                    onTap: () async {
+                      await tutorialController.restart();
+                      if (!mounted) {
+                        return;
+                      }
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
+                ),
+              ],
             ],
           );
         },

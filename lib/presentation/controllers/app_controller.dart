@@ -118,6 +118,12 @@ class AppController extends ChangeNotifier {
     await _prefs?.setBool(_seenOnboardingKey, value);
     notifyListeners();
   }
+
+  Future<void> resetFirstRun() async {
+    _firstRun = true;
+    await _prefs?.setBool(_firstRunKey, true);
+    notifyListeners();
+  }
 }
 
 class AppScope extends InheritedNotifier<AppController> {

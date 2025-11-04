@@ -7,6 +7,8 @@ import '../cart/cart_page.dart';
 import '../menu/menu_page.dart';
 import '../profile/profile_page.dart';
 import '../search/search_page.dart';
+import '../settings/settings_page.dart';
+import '../../controllers/tutorial_controller.dart';
 
 class HomeShellPage extends StatefulWidget {
   const HomeShellPage({super.key, required this.controller});
@@ -21,11 +23,73 @@ class HomeShellPage extends StatefulWidget {
 
 class _HomeShellPageState extends State<HomeShellPage> {
   final ValueNotifier<int> _index = ValueNotifier<int>(0);
+  TutorialController? _tutorialController;
+  bool _tutorialStarted = false;
+  bool _tutorialSettingsPushed = false;
 
   @override
   void dispose() {
+    _tutorialController?.currentTarget.removeListener(_handleTutorialTarget);
     _index.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final controller = TutorialScope.maybeOf(context);
+    if (!identical(controller, _tutorialController)) {
+      _tutorialController?.currentTarget.removeListener(_handleTutorialTarget);
+      _tutorialController = controller;
+      controller?.currentTarget.addListener(_handleTutorialTarget);
+      _handleTutorialTarget();
+    }
+    if (!_tutorialStarted && controller != null) {
+      _tutorialStarted = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        controller.startIfNeeded();
+      });
+    }
+  }
+
+  void _handleTutorialTarget() {
+    final controller = _tutorialController;
+    if (controller == null) {
+      return;
+    }
+    final target = controller.currentTarget.value;
+    if (target == null) {
+      _tutorialSettingsPushed = false;
+      return;
+    }
+    switch (target) {
+      case TutorialTarget.searchBar:
+        _index.value = 1;
+        _tutorialSettingsPushed = false;
+        break;
+      case TutorialTarget.addToCart:
+        _index.value = 0;
+        _tutorialSettingsPushed = false;
+        break;
+      case TutorialTarget.darkToggle:
+      case TutorialTarget.colorPicker:
+        if (_tutorialSettingsPushed) {
+          return;
+        }
+        _tutorialSettingsPushed = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) {
+            return;
+          }
+          if (ModalRoute.of(context)?.settings.name != SettingsPage.routeName) {
+            Navigator.of(context).pushNamed(SettingsPage.routeName);
+          }
+        });
+        break;
+    }
   }
 
   List<Widget> _buildPages() => const [

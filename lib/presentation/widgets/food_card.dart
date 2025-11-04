@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../domain/models/food_item.dart';
+import '../controllers/tutorial_controller.dart';
 import 'skeleton_loader.dart';
+import 'tutorial_overlay.dart';
 
 class FoodCard extends StatelessWidget {
   const FoodCard({
@@ -11,12 +13,14 @@ class FoodCard extends StatelessWidget {
     required this.onTap,
     required this.onAdd,
     this.sizeVariant = FoodCardSizeVariant.medium,
+    this.tutorialTarget,
   });
 
   final FoodItem item;
   final VoidCallback onTap;
   final VoidCallback onAdd;
   final FoodCardSizeVariant sizeVariant;
+  final TutorialTarget? tutorialTarget;
 
   @override
   Widget build(BuildContext context) {
@@ -127,13 +131,7 @@ class FoodCard extends StatelessWidget {
                             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const Spacer(),
-                          ElevatedButton(
-                            onPressed: onAdd,
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            ),
-                            child: const Icon(Icons.add),
-                          ),
+                          _buildAddButton(),
                         ],
                       ),
                     ],
@@ -148,6 +146,20 @@ class FoodCard extends StatelessWidget {
         .animate()
         .fadeIn(duration: 380.ms, curve: Curves.easeOut)
         .moveY(begin: 30, end: 0, curve: Curves.easeOut);
+}
+
+  Widget _buildAddButton() {
+    Widget button = ElevatedButton(
+      onPressed: onAdd,
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      child: const Icon(Icons.add),
+    );
+    if (tutorialTarget != null) {
+      button = TutorialTargetAnchor(target: tutorialTarget!, child: button);
+    }
+    return button;
   }
 }
 

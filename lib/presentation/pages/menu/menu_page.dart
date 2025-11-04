@@ -6,6 +6,7 @@ import '../../../data/local/food_local_data_source.dart';
 import '../../../domain/models/food_item.dart';
 import '../../controllers/catalog_controller.dart';
 import '../../controllers/cart_controller.dart';
+import '../../controllers/tutorial_controller.dart';
 import '../../widgets/food_card.dart';
 import '../catalog/catalog_page.dart';
 import '../item/item_details_page.dart';
@@ -241,11 +242,14 @@ class _MenuPageState extends State<MenuPage> {
                             delegate: SliverChildBuilderDelegate(
                               (context, index) {
                                 final item = filtered[index];
+                                final tutorialTarget =
+                                    index == 0 ? TutorialTarget.addToCart : null;
                                 return FoodCard(
                                   item: item,
                                   onTap: () => _openDetails(item),
                                   onAdd: () => _addToCart(item),
                                   sizeVariant: FoodCardSizeVariant.compact,
+                                  tutorialTarget: tutorialTarget,
                                 );
                               },
                               childCount: filtered.length,

@@ -7,6 +7,7 @@ import 'presentation/controllers/auth_controller.dart';
 import 'presentation/controllers/cart_controller.dart';
 import 'presentation/controllers/catalog_controller.dart';
 import 'presentation/controllers/compare_controller.dart';
+import 'presentation/controllers/tutorial_controller.dart';
 import 'data/local/cart_local_data_source.dart';
 import 'data/local/food_local_data_source.dart';
 import 'data/local/car_local_data_source.dart';
@@ -21,6 +22,7 @@ import 'presentation/pages/onboarding/onboarding_page.dart';
 import 'presentation/pages/settings/settings_page.dart';
 import 'presentation/pages/splash/splash_page.dart';
 import 'presentation/pages/compare/compare_cars_page.dart';
+import 'presentation/widgets/tutorial_overlay.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,12 +37,14 @@ Future<void> main() async {
     dataSource: CarLocalDataSource(),
   );
   await compareController.load();
+  final tutorialController = TutorialController(appController: appController);
   runApp(
     GreenBiteApp(
       appController: appController,
       authController: authController,
       cartController: cartController,
       compareController: compareController,
+      tutorialController: tutorialController,
     ),
   );
 }
@@ -52,12 +56,14 @@ class GreenBiteApp extends StatelessWidget {
     required this.authController,
     required this.cartController,
     required this.compareController,
+    required this.tutorialController,
   });
 
   final AppController appController;
   final AuthController authController;
   final CartController cartController;
   final CompareController compareController;
+  final TutorialController tutorialController;
 
   Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -146,46 +152,55 @@ class GreenBiteApp extends StatelessWidget {
               controller: cartController,
               child: CompareScope(
                 controller: compareController,
-                child: MaterialApp(
-                  title: 'GreenBite',
-                  debugShowCheckedModeBanner: false,
-                  themeMode: appController.themeMode,
-                  theme: AppTheme.buildTheme(
-                    Brightness.light,
-                    primarySeed: appController.primarySeed,
-                  ),
-                  darkTheme: AppTheme.buildTheme(
-                    Brightness.dark,
-                    primarySeed: appController.primarySeed,
-                  ),
-                  locale: locale,
-                  supportedLocales: const [Locale('en'), Locale('ar')],
-                  localizationsDelegates: const [
-                    AppLocalizationsDelegate(),
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  localeListResolutionCallback: (locales, supported) {
-                    if (locale != null) {
-                      return locale;
-                    }
-                    if (locales != null && locales.isNotEmpty) {
-                      for (final candidate in locales) {
-                        final match = supported.firstWhere(
-                          (supportedLocale) =>
-                              supportedLocale.languageCode == candidate.languageCode,
-                          orElse: () => supported.first,
-                        );
-                        if (match.languageCode == candidate.languageCode) {
-                          return match;
+                child: TutorialScope(
+                  controller: tutorialController,
+                  child: MaterialApp(
+                    title: 'GreenBite',
+                    debugShowCheckedModeBanner: false,
+                    themeMode: appController.themeMode,
+                    theme: AppTheme.buildTheme(
+                      Brightness.light,
+                      primarySeed: appController.primarySeed,
+                    ),
+                    darkTheme: AppTheme.buildTheme(
+                      Brightness.dark,
+                      primarySeed: appController.primarySeed,
+                    ),
+                    locale: locale,
+                    supportedLocales: const [Locale('en'), Locale('ar')],
+                    localizationsDelegates: const [
+                      AppLocalizationsDelegate(),
+                      GlobalWidgetsLocalizations.delegate,
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalCupertinoLocalizations.delegate,
+                    ],
+                    localeListResolutionCallback: (locales, supported) {
+                      if (locale != null) {
+                        return locale;
+                      }
+                      if (locales != null && locales.isNotEmpty) {
+                        for (final candidate in locales) {
+                          final match = supported.firstWhere(
+                            (supportedLocale) =>
+                                supportedLocale.languageCode == candidate.languageCode,
+                            orElse: () => supported.first,
+                          );
+                          if (match.languageCode == candidate.languageCode) {
+                            return match;
+                          }
                         }
                       }
-                    }
-                    return supported.first;
-                  },
-                  initialRoute: SplashPage.routeName,
-                  onGenerateRoute: _onGenerateRoute,
+                      return supported.first;
+                    },
+                    builder: (context, child) {
+                      if (child == null) {
+                        return const SizedBox.shrink();
+                      }
+                      return TutorialOverlay(child: child);
+                    },
+                    initialRoute: SplashPage.routeName,
+                    onGenerateRoute: _onGenerateRoute,
+                  ),
                 ),
               ),
             ),

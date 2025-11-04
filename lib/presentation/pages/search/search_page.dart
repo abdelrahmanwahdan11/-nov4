@@ -4,6 +4,8 @@ import '../../../core/locale/localization_extension.dart';
 import '../../../data/local/food_local_data_source.dart';
 import '../../../domain/models/food_item.dart';
 import '../../controllers/search_controller.dart';
+import '../../controllers/tutorial_controller.dart';
+import '../../widgets/tutorial_overlay.dart';
 import '../item/item_details_page.dart';
 
 class SearchPage extends StatefulWidget {
@@ -50,16 +52,19 @@ class _SearchPageState extends State<SearchPage> {
           preferredSize: const Size.fromHeight(72),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: TextField(
-              controller: _controller,
-              onChanged: _onQueryChanged,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: context.tr('search_hint'),
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
+            child: TutorialTargetAnchor(
+              target: TutorialTarget.searchBar,
+              child: TextField(
+                controller: _controller,
+                onChanged: _onQueryChanged,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: context.tr('search_hint'),
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
                 ),
               ),
             ),
