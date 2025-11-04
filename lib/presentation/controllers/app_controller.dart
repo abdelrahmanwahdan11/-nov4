@@ -14,12 +14,14 @@ class AppController extends ChangeNotifier {
   static const _primarySeedKey = 'primary_seed';
   static const _firstRunKey = 'first_run';
   static const _guestKey = 'guest_mode';
+  static const _seenOnboardingKey = 'seen_onboarding';
 
   ThemeMode _themeMode = ThemeMode.system;
   Locale? _locale;
   Color _primarySeed = ThemeTokens.seedPrimary;
   bool _firstRun = true;
   bool _isGuest = false;
+  bool _seenOnboarding = false;
   SharedPreferences? _prefs;
   Completer<void>? _initCompleter;
 
@@ -28,6 +30,7 @@ class AppController extends ChangeNotifier {
   Color get primarySeed => _primarySeed;
   bool get firstRun => _firstRun;
   bool get isGuest => _isGuest;
+  bool get seenOnboarding => _seenOnboarding;
   bool get isInitialized => _prefs != null;
 
   Future<void> initialize() {
@@ -67,6 +70,7 @@ class AppController extends ChangeNotifier {
 
     _firstRun = prefs.getBool(_firstRunKey) ?? true;
     _isGuest = prefs.getBool(_guestKey) ?? false;
+    _seenOnboarding = prefs.getBool(_seenOnboardingKey) ?? false;
 
     _initCompleter?.complete();
     notifyListeners();
@@ -106,6 +110,12 @@ class AppController extends ChangeNotifier {
   Future<void> setGuestMode(bool value) async {
     _isGuest = value;
     await _prefs?.setBool(_guestKey, value);
+    notifyListeners();
+  }
+
+  Future<void> setSeenOnboarding(bool value) async {
+    _seenOnboarding = value;
+    await _prefs?.setBool(_seenOnboardingKey, value);
     notifyListeners();
   }
 }

@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 
 import '../../controllers/app_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../widgets/greenbite_logo.dart';
+import '../auth/login_page.dart';
 import '../home/home_shell_page.dart';
+import '../onboarding/onboarding_page.dart';
 
 class SplashPage extends StatefulWidget {
-  const SplashPage({super.key, required this.controller});
+  const SplashPage({
+    super.key,
+    required this.controller,
+    required this.authController,
+  });
 
   static const routeName = '/splash';
 
   final AppController controller;
+  final AuthController authController;
 
   @override
   State<SplashPage> createState() => _SplashPageState();
@@ -29,17 +37,22 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
   Future<void> _bootstrap() async {
     await widget.controller.initialize();
+    await widget.authController.initialize();
     if (!mounted) {
       return;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.controller.firstRun) {
-        await widget.controller.markFirstRunComplete();
-      }
       if (!mounted) {
         return;
       }
-      Navigator.of(context).pushReplacementNamed(HomeShellPage.routeName);
+      final controller = widget.controller;
+      final authController = widget.authController;
+      final nextRoute = !controller.seenOnboarding
+          ? OnboardingPage.routeName
+          : (authController.isAuthenticated || controller.isGuest)
+              ? HomeShellPage.routeName
+              : LoginPage.routeName;
+      Navigator.of(context).pushReplacementNamed(nextRoute);
     });
   }
 
