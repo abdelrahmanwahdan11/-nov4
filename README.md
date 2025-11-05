@@ -1,45 +1,19 @@
-# Mawaid Banking Theme Prototype
+# Ayna Catalog & Compare
 
-This repository contains a lightweight Flutter application that showcases a soft-glass, minimal banking interface theme. It demonstrates:
+Foundational scaffold for the Ayna Catalog & Compare Flutter application. This baseline delivers:
 
-- Custom light and dark themes built with Material 3 design tokens.
-- Global typography powered by Inter from Google Fonts with tabular figures for financial values.
-- A gradient balance header, glassmorphic promo card, and stylised transaction list using Iconly icons.
-- A floating glass bottom dock navigation bar.
-- Runtime theme-mode switching between Light, Dark, and System options.
+- Material 3 light/dark themes derived from dynamic primary color tokens.
+- App-wide Inter/Cairo typography with tabular numbers via Google Fonts.
+- `AppController` + `AppScope` with SharedPreferences persistence for theme, locale, and color.
+- Manual localization delegate supporting English and Arabic with RTL directionality.
+- Navigator 1.0 router wiring initial routes (Onboarding → Auth → Home).
+- Soft-glass `GlassContainer` and floating `BottomDockNav` placeholder experience.
 
-## Requirements
+## Getting Started
 
-- Flutter 3.13 or newer.
-- Dart 3.3 or newer.
-
-## Getting started
-
-```sh
+```bash
 flutter pub get
 flutter run
 ```
 
-## Project structure
-
-```
-lib/
-├── core/theme
-│   ├── app_theme.dart
-│   └── tokens.dart
-├── features/settings
-│   └── theme_toggle.dart
-├── ui/components
-│   └── bottom_dock_nav.dart
-├── ui/widgets
-│   ├── buttons/
-│   ├── glass/
-│   ├── header_gradient_container.dart
-│   ├── promo_card.dart
-│   └── transaction_item.dart
-└── main.dart
-```
-
-## Theme port status
-
-When the UI aligns with the design tokens and passes visual QA, print `THEME_PORT_APPLIED_OK` in your verification logs.
+Toggle theme/locale from the Settings placeholder or the quick access tile on the home shell.
