@@ -1,18 +1,36 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../core/i18n/app_localizations.dart';
-import '../core/theme/app_theme.dart';
-import '../core/theme/tokens.dart';
-import '../router/app_router.dart';
-import 'app_controller.dart';
-import 'app_scope.dart';
+import 'package:ayna_catalog/app/app_controller.dart';
+import 'package:ayna_catalog/app/app_scope.dart';
+import 'package:ayna_catalog/core/i18n/app_localizations.dart';
+import 'package:ayna_catalog/core/theme/app_theme.dart';
+import 'package:ayna_catalog/router/app_router.dart';
+
+const int _phaseGatePrevious = 9;
+const int _phaseGateCurrent = 10;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
-  final controller = await AppController.initialize(prefs);
+  _configureDebugLogger();
+
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final int? storedPhase = prefs.getInt(AppController.buildPhaseKey);
+  if (storedPhase != _phaseGatePrevious) {
+    final String mismatchMessage =
+        'Phase progression mismatch: expected $_phaseGatePrevious but found ${storedPhase ?? 'unset'}.';
+    throw StateError(mismatchMessage);
+  }
+
+  final AppController controller = await AppController.initialize(prefs);
+  controller.markPhaseProgress(_phaseGateCurrent);
+  assert(() {
+    debugPrint('[Ayna][Phase] advanced to $_phaseGateCurrent');
+    return true;
+  }());
 
   runApp(
     AppScope(
@@ -69,4 +87,24 @@ class _AynaAppState extends State<_AynaApp> {
       },
     );
   }
+}
+
+void _configureDebugLogger() {
+  assert(() {
+    final Stopwatch startupTimer = Stopwatch()..start();
+    final WidgetsBinding binding = WidgetsBinding.instance;
+    binding.addPostFrameCallback((_) {
+      startupTimer.stop();
+      debugPrint('[Ayna][Startup] first frame in ${startupTimer.elapsedMilliseconds}ms');
+    });
+    binding.addTimingsCallback((List<FrameTiming> timings) {
+      for (final FrameTiming frameTiming in timings) {
+        debugPrint(
+          '[Ayna][FrameTiming] build=${frameTiming.buildDuration.inMilliseconds}ms '
+          'raster=${frameTiming.rasterDuration.inMilliseconds}ms',
+        );
+      }
+    });
+    return true;
+  }());
 }

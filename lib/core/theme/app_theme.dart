@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'tokens.dart';
+import 'package:ayna_catalog/core/theme/tokens.dart';
 
 class AppTheme {
   const AppTheme._();
@@ -13,17 +13,20 @@ class AppTheme {
     required Locale locale,
     required Color seed,
   }) {
+    const brightness = Brightness.light;
+    final palette = AppColors.of(brightness);
     final colorScheme = ColorScheme.fromSeed(
       seedColor: seed,
-      brightness: Brightness.light,
-      background: AppColors.of(Brightness.light).background,
-      primary: AppColors.of(Brightness.light).primary,
+      brightness: brightness,
+      background: palette.background,
+      surface: palette.surface,
+      primary: palette.primary,
     );
 
     return _baseTheme(
       locale: locale,
       colorScheme: colorScheme,
-      brightness: Brightness.light,
+      brightness: brightness,
     );
   }
 
@@ -31,18 +34,20 @@ class AppTheme {
     required Locale locale,
     required Color seed,
   }) {
-    final palette = AppColors.of(Brightness.dark);
+    const brightness = Brightness.dark;
+    final palette = AppColors.of(brightness);
     final colorScheme = ColorScheme.fromSeed(
       seedColor: seed,
-      brightness: Brightness.dark,
+      brightness: brightness,
       background: palette.background,
+      surface: palette.surface,
       primary: palette.primary,
     );
 
     return _baseTheme(
       locale: locale,
       colorScheme: colorScheme,
-      brightness: Brightness.dark,
+      brightness: brightness,
     );
   }
 

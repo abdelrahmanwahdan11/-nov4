@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../core/theme/tokens.dart';
+import 'package:ayna_catalog/core/theme/tokens.dart';
 
 class AppController extends ChangeNotifier {
   AppController._(this._prefs);
@@ -14,6 +14,7 @@ class AppController extends ChangeNotifier {
   static const _guestModeKey = 'guestMode';
   static const _favoritesKey = 'favorites';
   static const _compareListKey = 'compareList';
+  static const String buildPhaseKey = 'buildPhaseIndex';
 
   final SharedPreferences _prefs;
 
@@ -51,14 +52,14 @@ class AppController extends ChangeNotifier {
     if (favoritesJson != null) {
       _favorites
         ..clear()
-        ..addAll(List<String>.from(jsonDecode(favoritesJson) as List));
+        ..addAll(List<String>.from(jsonDecode(favoritesJson) as List<dynamic>));
     }
 
     final compareJson = _prefs.getString(_compareListKey);
     if (compareJson != null) {
       _compareList
         ..clear()
-        ..addAll(List<String>.from(jsonDecode(compareJson) as List));
+        ..addAll(List<String>.from(jsonDecode(compareJson) as List<dynamic>));
     }
   }
 
@@ -68,6 +69,7 @@ class AppController extends ChangeNotifier {
   bool get guestMode => _guestMode;
   Set<String> get favorites => Set.unmodifiable(_favorites);
   Set<String> get compareList => Set.unmodifiable(_compareList);
+  int get buildPhaseIndex => _prefs.getInt(buildPhaseKey) ?? 0;
 
   void setThemeMode(ThemeMode mode) {
     if (_themeMode == mode) return;
@@ -119,6 +121,14 @@ class AppController extends ChangeNotifier {
 
   void ping([int code = 0]) {
     rebuildTick.value = rebuildTick.value + 1 + code;
+  }
+
+  void markPhaseProgress(int value) {
+    final int? currentValue = _prefs.getInt(buildPhaseKey);
+    if (currentValue == value) {
+      return;
+    }
+    _prefs.setInt(buildPhaseKey, value);
   }
 
   void _persistSet(String key, Set<String> values) {
